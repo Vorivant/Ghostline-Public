@@ -1,0 +1,96 @@
+# Every push and pull request: secret scan, build all desktop targets, collect licences, package (no APK) and
+# check the server kit. Nothing is published.
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GITLEAKS_VERSION: 8.30.1
+      GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks (pinned, checksum verified)
+        run: |
+          set -euo pipefail
+          t="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$t" "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/$t"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/$t" | sha256sum --check --strict -
+          tar -xzf "$RUNNER_TEMP/$t" -C "$RUNNER_TEMP" gitleaks
+          "$RUNNER_TEMP/gitleaks" git . --no-banner --redact --exit-code 1
+          "$RUNNER_TEMP/gitleaks" dir . --no-banner --redact --exit-code 1
+
+  desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+      - name: Go version from upstream.json
+        run: echo "GO_VERSION=$(python3 -I -c 'import json; print(json.load(open("upstream.json"))["go"])')" >> "$GITHUB_ENV"
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff  # v5.6.0
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Python checks
+        run: |
+          set -euo pipefail
+          python3 -I -m py_compile rebrand/rebrand.py packaging/*.py website/render_preview.py android/app_texts.py
+          for f in build.sh android/build-app.sh client/linux/*.sh server/configure.sh packaging/sign-release.sh; do bash -n "$f"; done
+          python3 -I website/render_preview.py
+      - name: Build linux-amd64, linux-arm64, windows-amd64
+        run: GOTOOLCHAIN=local ./build.sh --target all --out dist/build --work .work
+      - name: Rebrand is complete and verifiable
+        run: python3 -I rebrand/rebrand.py --source .work/src --verify
+      - name: Go module licences
+        run: |
+          set -euo pipefail
+          tags="$(sed -n 's/^TAGS=//p' build.sh)"
+          for t in linux-amd64 linux-arm64 windows-amd64; do
+            GOTOOLCHAIN=local python3 -I packaging/collect_go_licences.py --src .work/src --target "$t" --tags "$tags" --out "dist/licences/$t"
+          done
+      - name: Smoke test the Linux binaries
+        run: |
+          set -euo pipefail
+          dist/build/linux-amd64/ghostline version
+          dist/build/linux-amd64/ghostlined --version
+      - name: Package (desktop and server kit; no APK)
+        run: python3 -I packaging/package.py --build dist/build --licences dist/licences --out dist/release
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ghostline-ci-${{ github.sha }}
+          path: dist/release
+          retention-days: 7
+
+  server-kit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+      - name: configure.sh, compose file and Headscale config check
+        run: |
+          set -euo pipefail
+          cd server
+          ./configure.sh --domain mesh.ci.test
+          docker compose config --quiet
+          docker run --rm -v "$PWD/config:/etc/headscale:ro" --tmpfs /var/lib/headscale --tmpfs /var/run/headscale \
+            "$(sed -n 's/^ *image: \(docker.io\/headscale\/headscale:[^ ]*\)$/\1/p' docker-compose.yml)" configtest

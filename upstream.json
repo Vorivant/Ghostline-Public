@@ -1,0 +1,22 @@
+{
+  "_comment": "Pinned upstream inputs. build.sh and android/build-app.sh refuse anything else.",
+  "go": "1.27.4",
+  "tailscale": {
+    "repo": "https://github.com/tailscale/tailscale",
+    "tag": "v1.104.5",
+    "commit": "73a48057aaf5f60e4f770b398e9b7af576b01dbe",
+    "version_long": "1.104.5-t73a48057a"
+  },
+  "tailscale_android": {
+    "repo": "https://github.com/tailscale/tailscale-android",
+    "tag": "1.104.5-t788384763-gd8673104f",
+    "commit": "d8673104f600c05b8c20b64d0e70951ed670236a"
+  },
+  "wintun": {
+    "url": "https://www.wintun.net/builds/wintun-0.14.1.zip",
+    "zip_sha256": "07c256185d6ee3652e09fa55c0b673e2624b565e02c4b9091c79ca7d2f24ef51",
+    "dll_sha256": {
+      "amd64": "e5da8447dc2c320edc0fc52fa01885c103de8c118481f683643cacc3220dafce"
+    }
+  }
+}

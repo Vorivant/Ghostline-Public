@@ -1,0 +1,13 @@
+{
+  "_comment": "Brand values applied to the copy of the upstream client by rebrand/rebrand.py. No server is built in: DefaultControlURL is a reserved .invalid name (RFC 6761) that never resolves, so a client that was not given your server's address (join.sh --login-server, join.ps1 -LoginServer, or 'Use an alternate server' in the Android app) cannot connect anywhere. Log upload and the update check are compiled out (LogHost and UpdateBaseURL stay empty).",
+  "ProductName": "Ghostline",
+  "ServiceName": "ghostlined",
+  "CliName": "ghostline",
+  "DataDirName": "Ghostline",
+  "Company": "Vorivant",
+  "DefaultControlURL": "https://enter-your-server.invalid",
+  "DerpHostnames": [],
+  "LogHost": "",
+  "UpdateBaseURL": "",
+  "WintunGuid": "{40eadc79-2e75-4080-8a16-795b822b58f6}"
+}

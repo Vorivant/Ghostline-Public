@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Ghostline | Private mesh network by Vorivant</title>
+<meta name="description" content="Ghostline connects your own PCs, servers and Android phone into one encrypted private network over WireGuard. Free download. Self-hosted. No account, no telemetry.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#050e20">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vorivant">
+<meta property="og:title" content="Download Ghostline">
+<meta property="og:description" content="One private, encrypted network for your own devices. Free and self-hosted. Windows, Linux and Android.">
+<meta property="og:image" content="assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Ghostline logo with the words: Your devices, one private network.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Download Ghostline">
+<meta name="twitter:description" content="One private, encrypted network for your own devices. Free and self-hosted.">
+<meta name="twitter:image" content="assets/og-image.png">
+
+<style>
+:root{
+  --bg:#f6f8fb; --surface:#ffffff; --surface-2:#eef2f7; --text:#0b1626; --muted:#4a5a70;
+  --border:#d3dbe6; --accent:#0b6e87; --accent-hover:#085a6f; --on-accent:#ffffff;
+  --code-bg:#eaeff5; --warn-bg:#fff6dc; --warn-border:#d9b44a; --warn-text:#4a3600;
+  --focus:#0b6e87; --shadow:0 1px 2px rgba(11,22,38,.06),0 4px 14px rgba(11,22,38,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#050e20; --surface:#0c1a30; --surface-2:#10213b; --text:#e9eff8; --muted:#a3b2c7;
+    --border:#223a5c; --accent:#22d3ee; --accent-hover:#67e3f5; --on-accent:#03111f;
+    --code-bg:#081426; --warn-bg:#2b2410; --warn-border:#8a6d1c; --warn-text:#f3e2a8;
+    --focus:#67e3f5; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);
+  font:1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow-x:hidden}
+.wrap{width:100%;max-width:68rem;margin:0 auto;padding:0 16px}
+a{color:var(--accent)}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:4px}
+.skip{position:absolute;left:16px;top:-4rem;background:var(--accent);color:var(--on-accent);padding:.5rem 1rem;border-radius:6px;z-index:10}
+.skip:focus{top:8px}
+h1,h2,h3{line-height:1.2;margin:0 0 .5em}
+h2{font-size:1.6rem;margin-top:0}
+h3{font-size:1.1rem}
+p{margin:0 0 1em}
+section{padding:2.5rem 0}
+.lead{font-size:1.2rem;color:var(--muted)}
+.muted{color:var(--muted)}
+.small{font-size:.9rem}
+
+.bar{padding:14px 0;border-bottom:1px solid var(--border)}
+.bar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-weight:700;text-decoration:none;color:var(--text);letter-spacing:.02em}
+.bar nav a{margin-left:16px;font-size:.95rem;color:var(--text)}
+
+.hero{padding:3rem 0 2rem}
+.hero .wrap{display:flex;gap:32px;align-items:center;flex-wrap:wrap}
+.hero img{width:112px;height:112px;border-radius:24px;flex:none}
+.hero .copy{flex:1 1 20rem;min-width:0}
+.hero h1{font-size:clamp(2rem,6vw,3rem);margin-bottom:.3em}
+.btn{display:inline-block;background:var(--accent);color:var(--on-accent);font-weight:700;text-decoration:none;
+  padding:.8rem 1.4rem;border-radius:10px;border:2px solid var(--accent);min-height:44px}
+.btn:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn[aria-disabled="true"]{background:transparent;color:var(--muted);border-color:var(--border);cursor:not-allowed}
+.hero .actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:1.2rem 0 .8rem}
+.meta{color:var(--muted);font-size:.92rem;margin:0}
+
+.note{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);
+  padding:.9rem 1rem;border-radius:10px;margin:1.2rem 0}
+.note p{margin:0}
+
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(min(100%,17rem),1fr));margin:0;padding:0;list-style:none}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.2rem;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:.5rem;min-width:0}
+.card h3{margin:0}
+.card .req{margin:0;color:var(--muted);font-size:.92rem}
+.card .btn{margin-top:.4rem;text-align:center}
+.card.match{outline:3px solid var(--accent);outline-offset:2px}
+.card.match .badge{display:inline-block}
+.badge{display:none;align-self:flex-start;background:var(--accent);color:var(--on-accent);font-size:.78rem;font-weight:700;padding:.1rem .55rem;border-radius:99px}
+.facts{margin:0;font-size:.88rem;color:var(--muted);overflow-wrap:anywhere}
+.hash{display:block;font:.76rem/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  background:var(--code-bg);padding:.4rem .5rem;border-radius:6px;overflow-wrap:anywhere;word-break:break-all;color:var(--text)}
+.hashlabel{font-size:.78rem;color:var(--muted);margin:.2rem 0 0}
+.card.soon{opacity:.85}
+
+.points{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr));margin:0;padding:0;list-style:none;counter-reset:p}
+.points li{background:var(--surface-2);border-radius:14px;padding:1.2rem;counter-increment:p}
+.points li::before{content:counter(p);display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;
+  border-radius:50%;background:var(--accent);color:var(--on-accent);font-weight:700;margin-bottom:.6rem}
+.points h3{margin-bottom:.3em}
+.points p{margin:0;color:var(--muted)}
+
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:.8rem 1rem;overflow-x:auto;margin:.5rem 0 1rem;max-width:100%}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.88rem}
+:not(pre)>code{background:var(--code-bg);padding:.1rem .35rem;border-radius:4px;overflow-wrap:anywhere}
+ol.steps{padding-left:1.3rem;margin:.5rem 0 0}
+ol.steps li{margin-bottom:.5rem;min-width:0}
+
+details{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:0 0 10px;padding:0}
+summary{cursor:pointer;font-weight:600;padding:.85rem 1rem;min-height:44px}
+details[open] summary{border-bottom:1px solid var(--border)}
+details .ans{padding:.8rem 1rem 0}
+
+footer{border-top:1px solid var(--border);padding:2rem 0 3rem;color:var(--muted);font-size:.92rem}
+footer p{margin:0 0 .6rem}
+
+@media (max-width:480px){
+  .hero{padding-top:2rem}
+  .hero img{width:88px;height:88px}
+  .bar nav a{margin-left:0;margin-right:14px}
+  h2{font-size:1.4rem}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#downloads">Skip to downloads</a>
+
+<header class="bar">
+  <div class="wrap">
+    <a class="brand" href="#top">Ghostline <span class="muted" style="font-weight:400">by Vorivant</span></a>
+    <nav aria-label="Page sections">
+      <a href="#downloads">Download</a>
+      <a href="#quickstart">Quick start</a>
+      <a href="#verify">Verify</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="wrap">
+    <img src="assets/ghostline-icon-256.png" width="112" height="112" alt="Ghostline logo: a cyan and silver swirl on a dark square">
+    <div class="copy">
+      <h1 id="hero-title">Ghostline</h1>
+      <p class="lead">Your own devices, on one private network, from anywhere.</p>
+      <p>Ghostline links your PCs, servers and Android phone with encrypted WireGuard tunnels. It is free. You run the small server that coordinates it, so nothing depends on us.</p>
+      <div class="actions">
+        <a class="btn" id="primary-dl" href="#downloads">Download Ghostline</a>
+        <a class="btn ghost" href="#quickstart">Quick start</a>
+      </div>
+      <p class="meta">Version {{VERSION}} &middot; mesh core {{CORE_VERSION}} &middot; released {{RELEASE_DATE}}</p>
+    </div>
+  </div>
+</section>
+
+<section id="downloads" aria-labelledby="dl-title">
+  <div class="wrap">
+    <h2 id="dl-title">Download</h2>
+    <p class="muted">Free. No account with Vorivant. Pick your system. Then <a href="#verify">verify the file</a>.</p>
+
+    <div id="unsigned-note" class="note" role="note">
+      <p><strong>Windows note.</strong> The Windows build is not code-signed yet. Windows SmartScreen may show a warning. This is expected. Check the SHA-256 below before you run it. Choose &ldquo;More info&rdquo;, then &ldquo;Run anyway&rdquo; only if the checksum matches.</p>
+    </div>
+
+    <ul class="grid">
+      <li class="card" data-os="windows">
+        <span class="badge">Matches your system</span>
+        <h3>Windows</h3>
+        <p class="req">Windows 10 or 11, 64-bit (x64). Zip file.</p>
+        <a class="btn" href="{{FILE_windows_amd64}}" download>Download for Windows</a>
+        <p class="facts">{{FILE_windows_amd64}} &middot; {{SIZE_windows_amd64}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_windows_amd64}}</code>
+      </li>
+
+      <li class="card" data-os="linux-x64">
+        <span class="badge">Matches your system</span>
+        <h3>Linux, x86-64</h3>
+        <p class="req">Any systemd-based 64-bit Linux. tar.gz.</p>
+        <a class="btn" href="{{FILE_linux_amd64}}" download>Download for Linux x86-64</a>
+        <p class="facts">{{FILE_linux_amd64}} &middot; {{SIZE_linux_amd64}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_linux_amd64}}</code>
+      </li>
+
+      <li class="card" data-os="linux-arm">
+        <span class="badge">Matches your system</span>
+        <h3>Linux, ARM64</h3>
+        <p class="req">64-bit ARM with systemd, such as a Raspberry Pi 4 or 5 on 64-bit Linux. tar.gz.</p>
+        <a class="btn" href="{{FILE_linux_arm64}}" download>Download for Linux ARM64</a>
+        <p class="facts">{{FILE_linux_arm64}} &middot; {{SIZE_linux_arm64}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_linux_arm64}}</code>
+      </li>
+
+      <li class="card" data-os="android">
+        <span class="badge">Matches your system</span>
+        <h3>Android</h3>
+        <p class="req">Android 8.0 or newer. arm64 and armv7. APK for sideloading.</p>
+        <a class="btn" href="{{FILE_android}}" download>Download for Android</a>
+        <p class="facts">{{FILE_android}} &middot; {{SIZE_android}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_android}}</code>
+      </li>
+
+      <li class="card" data-os="server">
+        <h3>Server kit</h3>
+        <p class="req">Run your own coordination server (Headscale and Caddy, with Docker Compose). tar.gz.</p>
+        <a class="btn" href="{{FILE_server_kit}}" download>Download server kit</a>
+        <p class="facts">{{FILE_server_kit}} &middot; {{SIZE_server_kit}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_server_kit}}</code>
+      </li>
+
+      <li class="card" data-os="source">
+        <h3>Source code</h3>
+        <p class="req">The full source for this release. tar.gz.</p>
+        <a class="btn ghost" href="{{FILE_source}}" download>Download source</a>
+        <p class="facts">{{FILE_source}} &middot; {{SIZE_source}}</p>
+        <p class="hashlabel">SHA-256</p>
+        <code class="hash">{{SHA256_source}}</code>
+      </li>
+
+      <li class="card soon" data-os="macos">
+        <h3>macOS</h3>
+        <p class="req">Coming later.</p>
+        <span class="btn" role="link" aria-disabled="true">Not available yet</span>
+      </li>
+    </ul>
+
+    <p class="small muted" style="margin-top:1rem">The apps need a Ghostline server to join. See the Server kit and the quick start below.</p>
+  </div>
+</section>
+
+<section aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title">How it works</h2>
+    <ol class="points">
+      <li>
+        <h3>You run a small server</h3>
+        <p>The server kit sets up Headscale, an open-source coordination server, on a Linux VPS you control. It only hands out keys and addresses.</p>
+      </li>
+      <li>
+        <h3>Your devices join</h3>
+        <p>Install Ghostline on each device and enter your server address when you sign in. Every device joins your private mesh, called Remota.</p>
+      </li>
+      <li>
+        <h3>They talk directly</h3>
+        <p>Traffic between your devices is end-to-end encrypted with WireGuard. Reach any of them from anywhere, as if they were on one local network.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="quickstart" aria-labelledby="qs-title">
+  <div class="wrap">
+    <h2 id="qs-title">Quick start</h2>
+    <p class="muted">Start with the server. Then add your devices. Replace <code>https://your-server.example</code> with your own server address.</p>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr))">
+
+      <div class="card">
+        <h3>1. Server (do this first)</h3>
+        <ol class="steps">
+          <li>Get a Linux VPS with Docker installed.</li>
+          <li>Point a domain name at it.</li>
+          <li>Open ports 443/tcp, 80/tcp and 3478/udp.</li>
+          <li>Unpack the server kit and follow <code>SELF-HOST.md</code> inside it.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Windows</h3>
+        <ol class="steps">
+          <li>Windows blocks scripts from downloaded files. Right-click the zip, choose Properties, tick <strong>Unblock</strong>, then OK. Or run <code>Unblock-File</code> on the zip in PowerShell.</li>
+          <li>Unzip it.</li>
+          <li>Open PowerShell as Administrator in the unzipped folder.</li>
+          <li>Install:
+<pre><code>powershell -ExecutionPolicy Bypass -File .\install.ps1</code></pre></li>
+          <li>Join your mesh:
+<pre><code>powershell -ExecutionPolicy Bypass -File .\join.ps1 -LoginServer https://your-server.example</code></pre></li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Linux</h3>
+        <ol class="steps">
+          <li>Unpack the archive:
+<pre><code>tar xzf {{FILE_linux_amd64}}</code></pre></li>
+          <li>Install it:
+<pre><code>sudo ./install.sh</code></pre></li>
+          <li>Join your mesh:
+<pre><code>sudo ./join.sh --login-server https://your-server.example</code></pre></li>
+        </ol>
+        <p class="small muted">On ARM64, use the ARM64 archive instead.</p>
+      </div>
+
+      <div class="card">
+        <h3>Android</h3>
+        <ol class="steps">
+          <li>Allow installs from this source when Android asks.</li>
+          <li>Open the APK and install it.</li>
+          <li>In the app menu, choose &ldquo;Use an alternate server&rdquo;.</li>
+          <li>Enter your server address and sign in.</li>
+        </ol>
+      </div>
+    </div>
+    <p class="small muted" style="margin-top:1rem">On Windows and Linux, the command-line tool is <code>ghostline</code>. Run <code>ghostline status</code> to see your connection. The background service is called <code>ghostlined</code>.</p>
+  </div>
+</section>
+
+<section id="verify" aria-labelledby="verify-title">
+  <div class="wrap">
+    <h2 id="verify-title">Verify your download</h2>
+    <p>Each release has a list of checksums, <a href="SHA256SUMS">SHA256SUMS</a>. We sign that list with an SSH signing key. Check the signature, then check your file against the list.</p>
+    <p>Put these three files in the same folder as your download: <a href="SHA256SUMS">SHA256SUMS</a>, <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> and the public key <a href="ghostline-release-signing.pub">ghostline-release-signing.pub</a>.</p>
+
+    <h3>Linux, macOS or Windows with OpenSSH</h3>
+    <ol class="steps">
+      <li>Make an allowed signers file from the public key:
+<pre><code>echo "release@vorivant.com $(cat ghostline-release-signing.pub)" &gt; allowed_signers</code></pre></li>
+      <li>Check the signature. It should say &ldquo;Good signature&rdquo;:
+<pre><code>ssh-keygen -Y verify -f allowed_signers -I release@vorivant.com -n file -s SHA256SUMS.sig &lt; SHA256SUMS</code></pre></li>
+      <li>Check your file:
+<pre><code>sha256sum -c SHA256SUMS --ignore-missing</code></pre></li>
+    </ol>
+
+    <h3>Windows PowerShell</h3>
+    <p>Print the hash of your file. Compare it with the one on this page or in <code>SHA256SUMS</code>:</p>
+<pre><code>Get-FileHash .\{{FILE_windows_amd64}} -Algorithm SHA256</code></pre>
+
+    <p class="small muted">The public key comes from this same site. For a stronger check, ask us for the key by email and compare it: <a href="mailto:ghostline@vorivant.com">ghostline@vorivant.com</a>.</p>
+  </div>
+</section>
+
+<section id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <h2 id="faq-title">Questions</h2>
+
+    <details>
+      <summary>Does it hide my IP on the web?</summary>
+      <div class="ans"><p>No. Ghostline connects your own devices. It is not an internet VPN.</p></div>
+    </details>
+
+    <details>
+      <summary>Is it free?</summary>
+      <div class="ans"><p>Yes. The download is free. You pay only for the server you choose to rent, if you rent one. There is no account with Vorivant.</p></div>
+    </details>
+
+    <details>
+      <summary>Who can see my traffic?</summary>
+      <div class="ans"><p>Only your own devices. Traffic between them is end-to-end encrypted with WireGuard. Your own server coordinates keys and addresses, and its relay carries encrypted traffic only when two devices cannot connect directly; it cannot read your data. Ghostline has no telemetry, does not upload logs, and does not check for updates by itself.</p></div>
+    </details>
+
+    <details>
+      <summary>Why do I need my own server?</summary>
+      <div class="ans"><p>Your devices need a coordinator to swap keys and find each other. That is a Headscale server that you run with the server kit. It keeps you in control and means you do not depend on Vorivant. You enter its address when you sign in.</p></div>
+    </details>
+
+    <details>
+      <summary>Which Android versions work?</summary>
+      <div class="ans"><p>Android 8.0 and newer, on arm64 and armv7 phones. The app is an APK that you install yourself.</p></div>
+    </details>
+
+    <details>
+      <summary>What does the server need?</summary>
+      <div class="ans"><p>A small Linux VPS with Docker, a domain name pointing at it, and these ports open: 443/tcp, 80/tcp and 3478/udp. The server kit includes step-by-step notes in <code>SELF-HOST.md</code>.</p></div>
+    </details>
+
+    <details>
+      <summary>Is there a Mac version?</summary>
+      <div class="ans"><p>Not yet. macOS is coming later.</p></div>
+    </details>
+  </div>
+</section>
+
+<section aria-labelledby="lic-title">
+  <div class="wrap">
+    <h2 id="lic-title">Licences and source</h2>
+    <p>Ghostline includes open-source software. The licences and credits are in <a href="THIRD-PARTY-NOTICES.md">THIRD-PARTY-NOTICES.md</a>. The source for this release is here: <a href="{{FILE_source}}">{{FILE_source}}</a> ({{SIZE_source}}).</p>
+    <p>Need help? Write to <a href="mailto:ghostline@vorivant.com">ghostline@vorivant.com</a>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Ghostline {{VERSION}} (mesh core {{CORE_VERSION}}), released {{RELEASE_DATE}}.</p>
+    <p>&copy; Vorivant. Contact: <a href="mailto:ghostline@vorivant.com">ghostline@vorivant.com</a></p>
+    <p>Built on the open-source Tailscale client (BSD-3-Clause). Not affiliated with Tailscale Inc.</p>
+  </div>
+</footer>
+
+<script>
+/* Optional. Highlights the download card that matches this device. The page works without it. */
+(function(){
+  try{
+    var ua=(navigator.userAgent||"").toLowerCase(), p=(navigator.platform||"").toLowerCase(), os=null;
+    if(/android/.test(ua)) os="android";
+    else if(/windows/.test(ua)||/win/.test(p)) os="windows";
+    else if(/linux|x11/.test(ua)||/linux/.test(p)) os=/aarch64|arm/.test(ua+p)?"linux-arm":"linux-x64";
+    if(!os) return;
+    var card=document.querySelector('.card[data-os="'+os+'"]');
+    if(!card) return;
+    card.classList.add("match");
+    var btn=card.querySelector("a.btn"), main=document.getElementById("primary-dl");
+    if(btn&&main){
+      main.href=btn.getAttribute("href");
+      main.setAttribute("download","");
+      main.textContent=btn.textContent;
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>

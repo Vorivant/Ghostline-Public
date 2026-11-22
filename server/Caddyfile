@@ -1,0 +1,19 @@
+# Ghostline server: HTTPS in front of Headscale. The domain comes from .env (configure.sh).
+{
+	servers {
+		timeouts {
+			read_header 10s
+			idle 2m
+		}
+		max_header_size 64KB
+	}
+}
+
+{$GHOSTLINE_DOMAIN} {
+	# The admin API and its docs are not needed from the internet (use the headscale command on the server).
+	@admin path /api /api/* /swagger /swagger/*
+	respond @admin 404
+	reverse_proxy headscale:8080 {
+		header_up X-Real-IP {remote_host}
+	}
+}

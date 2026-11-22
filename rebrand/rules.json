@@ -1,0 +1,1192 @@
+{
+ "_comment": "Exact text replacements applied by rebrand/rebrand.py to a copy of the upstream client source: product names and paths, the control server (brand.json), and privacy edits (no log upload, no bootstrap DNS through third-party relays, no update check, and others). Each 'old' text must be found, so an upstream change cannot silently skip an edit.",
+ "rules": [
+  {
+   "files": [
+    "ipn/prefs.go"
+   ],
+   "old": "const DefaultControlURL = \"https://controlplane.tailscale.com\"",
+   "new": "const DefaultControlURL = \"{{ControlURL}}\""
+  },
+  {
+   "files": [
+    "logpolicy/logpolicy.go"
+   ],
+   "old": "strings.EqualFold(filepath.Base(exe), \"tailscaled.exe\")",
+   "new": "strings.EqualFold(filepath.Base(exe), \"{{ServiceName}}.exe\")"
+  },
+  {
+   "files": [
+    "ipn/prefs.go"
+   ],
+   "old": "url = \"https://login.tailscale.com\"",
+   "new": "url = \"{{ControlURL}}\""
+  },
+  {
+   "files": [
+    "util/winutil/policy/policy_windows.go"
+   ],
+   "old": "const def = \"https://controlplane.tailscale.com\"",
+   "new": "const def = \"{{ControlURL}}\""
+  },
+  {
+   "files": [
+    "util/syspolicy/syspolicy.go"
+   ],
+   "old": "const def = \"https://controlplane.tailscale.com\"",
+   "new": "const def = \"{{ControlURL}}\""
+  },
+  {
+   "files": [
+    "util/syspolicy/syspolicy_test.go",
+    "util/winutil/policy/policy_windows_test.go"
+   ],
+   "old": "{\"\", \"\", \"https://controlplane.tailscale.com\"}",
+   "new": "{\"\", \"\", \"{{ControlURL}}\"}"
+  },
+  {
+   "files": [
+    "net/tstun/wrap_test.go"
+   ],
+   "old": "\"tailscale.com/disco\"\n",
+   "new": "\"tailscale.com/disco\"\n\t\"tailscale.com/feature/buildfeatures\"\n"
+  },
+  {
+   "files": [
+    "net/tstun/wrap_test.go"
+   ],
+   "old": "if wasUDP {",
+   "new": "if wasUDP && buildfeatures.HasNetLog {"
+  },
+  {
+   "files": [
+    "net/netmon/state.go"
+   ],
+   "old": "var LoginEndpointForProxyDetermination = \"https://controlplane.tailscale.com/\"",
+   "new": "var LoginEndpointForProxyDetermination = \"{{ControlURL}}/\""
+  },
+  {
+   "files": [
+    "net/captivedetection/endpoints.go"
+   ],
+   "old": "appendTailscaleEndpoint(\"http://controlplane.tailscale.com/generate_204\")",
+   "new": "appendTailscaleEndpoint(\"http://{{ControlHost}}/generate_204\")"
+  },
+  {
+   "files": [
+    "net/captivedetection/endpoints.go"
+   ],
+   "old": "appendTailscaleEndpoint(\"http://login.tailscale.com/generate_204\")",
+   "new": "// (second Tailscale probe removed by rebrand)"
+  },
+  {
+   "files": [
+    "cmd/tailscaled/debug.go"
+   ],
+   "old": "urlStr = \"https://login.tailscale.com\"",
+   "new": "urlStr = \"{{ControlURL}}\""
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled_windows.go"
+   ],
+   "old": "const serviceName = \"Tailscale\"",
+   "new": "const serviceName = \"{{ServiceName}}\""
+  },
+  {
+   "files": [
+    "net/tstun/tun_windows.go"
+   ],
+   "old": "tun.WintunTunnelType = \"Tailscale\"",
+   "new": "tun.WintunTunnelType = \"{{ProductName}}\""
+  },
+  {
+   "files": [
+    "net/tstun/tun_windows.go"
+   ],
+   "old": "{37217669-42da-4657-a55b-0d995d328250}",
+   "new": "{{WintunGuid}}"
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "return \"Tailscale\"",
+   "new": "return \"{{ProductName}}\""
+  },
+  {
+   "files": [
+    "net/netmon/state.go"
+   ],
+   "old": "return name == \"Tailscale\" ||",
+   "new": "return name == \"{{ProductName}}\" ||"
+  },
+  {
+   "files": [
+    "paths/paths.go"
+   ],
+   "old": "os.Getenv(\"ProgramData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"ProgramData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "paths/paths.go"
+   ],
+   "old": "os.Getenv(\"LocalAppData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"LocalAppData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "logpolicy/logpolicy.go"
+   ],
+   "old": "os.Getenv(\"ProgramData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"ProgramData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "logpolicy/logpolicy.go"
+   ],
+   "old": "os.Getenv(\"LocalAppData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"LocalAppData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "logpolicy/logpolicy.go"
+   ],
+   "old": "cacheDir, \"Tailscale\"",
+   "new": "cacheDir, \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "envknob/envknob.go"
+   ],
+   "old": "os.Getenv(\"ProgramData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"ProgramData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "ipn/auditlog/store.go"
+   ],
+   "old": "os.Getenv(\"ProgramData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"ProgramData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "clientupdate/clientupdate_windows.go"
+   ],
+   "old": "os.Getenv(\"ProgramData\"), \"Tailscale\"",
+   "new": "os.Getenv(\"ProgramData\"), \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "cmd/tailscaled/syspolicy.go"
+   ],
+   "old": "filepath.Join(pd, \"Tailscale\"",
+   "new": "filepath.Join(pd, \"{{DataDirName}}\""
+  },
+  {
+   "files": [
+    "paths/paths.go"
+   ],
+   "old": "WindowsProtectedPipePrefix + `Tailscale\\tailscaled`",
+   "new": "WindowsProtectedPipePrefix + `{{DataDirName}}\\tailscaled`"
+  },
+  {
+   "files": [
+    "util/syspolicy/source/policy_store_windows.go"
+   ],
+   "old": "tsPoliciesSubkey = `Policies\\Tailscale`",
+   "new": "tsPoliciesSubkey = `Policies\\{{DataDirName}}`"
+  },
+  {
+   "files": [
+    "util/winutil/winutil_windows.go"
+   ],
+   "old": "regPolicyBase = `SOFTWARE\\Policies\\Tailscale`",
+   "new": "regPolicyBase = `SOFTWARE\\Policies\\{{DataDirName}}`"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "Name:       \"tailscale\",",
+   "new": "Name:       \"{{CliName}}\","
+  },
+  {
+   "files": [],
+   "old": "ShortUsage: \"tailscale ",
+   "new": "ShortUsage: \"{{CliName}} ",
+   "glob": "cmd/tailscale/cli/*.go",
+   "optional": true
+  },
+  {
+   "files": [
+    "logtail/config.go"
+   ],
+   "old": "const DefaultHost = \"log.tailscale.com\"",
+   "new": "const DefaultHost = \"{{LogHost}}\"",
+   "when": "LogHost"
+  },
+  {
+   "files": [
+    "clientupdate/clientupdate.go"
+   ],
+   "old": "https://pkgs.tailscale.com",
+   "new": "{{UpdateBaseURL}}",
+   "when": "UpdateBaseURL"
+  },
+  {
+   "files": [
+    "clientupdate/clientupdate_windows.go"
+   ],
+   "old": "https://pkgs.tailscale.com",
+   "new": "{{UpdateBaseURL}}",
+   "when": "UpdateBaseURL"
+  },
+  {
+   "files": [
+    "paths/paths.go"
+   ],
+   "old": "/var/run/tailscaled.socket",
+   "new": "/var/run/ghostline.sock"
+  },
+  {
+   "files": [
+    "paths/paths.go"
+   ],
+   "old": "/var/run/tailscale/tailscaled.sock",
+   "new": "/var/run/ghostline/ghostlined.sock"
+  },
+  {
+   "files": [
+    "paths/paths_unix.go"
+   ],
+   "old": "/var/lib/tailscale/tailscaled.state",
+   "new": "/var/lib/ghostline/ghostlined.state"
+  },
+  {
+   "files": [
+    "paths/paths_unix.go"
+   ],
+   "old": "/Library/Tailscale/tailscaled.state",
+   "new": "/Library/Ghostline/ghostlined.state"
+  },
+  {
+   "files": [
+    "paths/paths_windows.go"
+   ],
+   "old": "if strings.ToLower(filepath.Base(dirPath)) != \"tailscale\" {",
+   "new": "if base := strings.ToLower(filepath.Base(dirPath)); base != \"tailscale\" && base != strings.ToLower(\"{{DataDirName}}\") {"
+  },
+  {
+   "files": [
+    "paths/paths_unix.go"
+   ],
+   "old": "\t\"path/filepath\"\n\t\"runtime\"\n",
+   "new": "\t\"path/filepath\"\n\t\"runtime\"\n\t\"strings\"\n"
+  },
+  {
+   "files": [
+    "paths/paths_unix.go"
+   ],
+   "old": "if filepath.Base(dir) != \"tailscale\" {",
+   "new": "if base := filepath.Base(dir); base != \"tailscale\" && !strings.EqualFold(base, \"ghostline\") && !strings.EqualFold(base, \"{{DataDirName}}\") {"
+  },
+  {
+   "files": [
+    "cmd/tailscaled/install_windows.go"
+   ],
+   "old": "Connects this computer to others on the Tailscale network.",
+   "new": "Connects this computer to your Ghostline mesh."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "newFlagSet(\"tailscale\")",
+   "new": "newFlagSet(\"{{CliName}}\")"
+  },
+  {
+   "files": [
+    "ipn/prefs_test.go"
+   ],
+   "old": "\t\"tailscale.com/ipn/ipnstate\"",
+   "new": "\t\"tailscale.com/feature/buildfeatures\"\n\t\"tailscale.com/ipn/ipnstate\""
+  },
+  {
+   "files": [
+    "ipn/prefs_test.go"
+   ],
+   "old": "\t\tgot := tt.p.pretty(tt.os)\n\t\tif got != tt.want {",
+   "new": "\t\tgot := tt.p.pretty(tt.os)\n\t\tif !buildfeatures.HasClientUpdate {\n\t\t\ttt.want = strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(tt.want, \" update=off\", \"\"), \" update=on\", \"\"), \" update=check\", \"\")\n\t\t}\n\t\tif got != tt.want {"
+  },
+  {
+   "files": [
+    "ipn/prefs_test.go"
+   ],
+   "old": "func TestPrefsEqual(t *testing.T) {",
+   "new": "func TestGhostlinePrivacyFeaturesOmitted(t *testing.T) {\n\tif buildfeatures.HasLogTail || buildfeatures.HasNetLog || buildfeatures.HasClientUpdate {\n\t\tt.Fatal(\"Ghostline mesh tests require all three privacy omission build tags\")\n\t}\n\tif buildfeatures.HasDebug || buildfeatures.HasServe || buildfeatures.HasWebClient || buildfeatures.HasOutboundProxy {\n\t\tt.Fatal(\"Ghostline mesh tests require ts_omit_debug, ts_omit_serve, ts_omit_webclient and ts_omit_outboundproxy\")\n\t}\n\t// ACME certificates are only used by Serve/Funnel and the cert command, all omitted;\n\t// upstream feature/acme does not compile without serve.\n\tif buildfeatures.HasACME {\n\t\tt.Fatal(\"Ghostline mesh tests require ts_omit_acme\")\n\t}\n\tif buildfeatures.HasSSH || buildfeatures.HasTaildrop || buildfeatures.HasRelayServer || buildfeatures.HasPosture || buildfeatures.HasWakeOnLAN {\n\t\tt.Fatal(\"Ghostline mesh tests require the unused-feature omission tags (ssh, taildrop, relayserver, posture, wakeonlan)\")\n\t}\n\t// Without it every local user gets full LocalAPI access over the unix socket.\n\tif !buildfeatures.HasUnixSocketIdentity {\n\t\tt.Fatal(\"ts_omit_unixsocketidentity must not be set in Ghostline builds\")\n\t}\n}\n\nfunc TestPrefsEqual(t *testing.T) {"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "\t\tSubcommands: nonNilCmds(\n\t\t\tupCmd,\n\t\t\tdownCmd,\n\t\t\tsetCmd,\n\t\t\tgetCmd,\n\t\t\tloginCmd,\n\t\t\tlogoutCmd,\n\t\t\tswitchCmd,\n\t\t\tconfigureCmd(),\n\t\t\tnilOrCall(sysPolicyCmd),\n\t\t\tnetcheckCmd,\n\t\t\tnilOrCall(maybeRoutecheckCmd),\n\t\t\tipCmd,\n\t\t\tdnsCmd,\n\t\t\tstatusCmd,\n\t\t\tmetricsCmd,\n\t\t\tpingCmd,\n\t\t\tncCmd,\n\t\t\tsshCmd,\n\t\t\tnilOrCall(maybeFunnelCmd),\n\t\t\tnilOrCall(maybeServeCmd),\n\t\t\tserviceCmd,\n\t\t\tversionCmd,\n\t\t\tnilOrCall(maybeWebCmd),\n\t\t\tnilOrCall(fileCmd),\n\t\t\tbugReportCmd,\n\t\t\tnilOrCall(maybeCertCmd),\n\t\t\tnilOrCall(maybeTailnetLockCmd),\n\t\t\tlicensesCmd,\n\t\t\texitNodeCmd(),\n\t\t\tnilOrCall(maybeUpdateCmd),\n\t\t\twhoisCmd,\n\t\t\twhoamiCmd,\n\t\t\tdebugCmd(),\n\t\t\tnilOrCall(maybeDriveCmd),\n\t\t\tidTokenCmd,\n\t\t\tconfigureHostCmd(),\n\t\t\tsystrayCmd,\n\t\t\tappcRoutesCmd,\n\t\t\twaitCmd,\n\t\t),",
+   "new": "\t\tSubcommands: nonNilCmds(\n\t\t\tupCmd, downCmd, setCmd, loginCmd, logoutCmd, ipCmd,\n\t\t\tstatusCmd, pingCmd, ncCmd, whoisCmd, versionCmd, licensesCmd,\n\t\t\t&ffcli.Command{\n\t\t\t\tName: \"debug\", ShortUsage: \"{{CliName}} debug\",\n\t\t\t\tShortHelp: \"Read local daemon preferences\",\n\t\t\t\tSubcommands: []*ffcli.Command{{Name: \"prefs\", ShortUsage: \"{{CliName}} debug prefs\", ShortHelp: \"Print preferences\", Exec: runPrefs}},\n\t\t\t},\n\t\t),"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/version.go"
+   ],
+   "old": "\tif versionArgs.upstream {\n\t\tf, ok := clientupdateLatestTailscaleVersion.GetOk()\n\t\tif !ok {\n\t\t\treturn fmt.Errorf(\"fetching latest version not supported in this build\")\n\t\t}\n\t\tupstreamVer, err = f(versionArgs.track)\n\t\tif err != nil {\n\t\t\treturn err\n\t\t}\n\t}",
+   "new": "\tif versionArgs.upstream {\n\t\treturn fmt.Errorf(\"upstream version lookup is disabled in Ghostline\")\n\t}"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"ignore_login_server_synonym_on_other_change\",\n\t\t\tflags: []string{\"--netfilter-mode=off\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"ignore_login_server_synonym_on_other_change\",\n\t\t\tflags: []string{\"--netfilter-mode=off\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"synology_permit_omit_accept_routes\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"synology_permit_omit_accept_routes\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"not_synology_dont_permit_omit_accept_routes\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"not_synology_dont_permit_omit_accept_routes\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"profile_name_ignored_in_up\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"profile_name_ignored_in_up\",\n\t\t\tflags: []string{\"--hostname=foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"control_synonym\",\n\t\t\tflags: []string{},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL: \"https://login.tailscale.com\"",
+   "new": "name:  \"control_synonym\",\n\t\t\tflags: []string{},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL: ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"change_login_server\",\n\t\t\tflags: []string{\"--login-server=https://localhost:1000\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"change_login_server\",\n\t\t\tflags: []string{\"--login-server=https://localhost:1000\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"change_tags\",\n\t\t\tflags: []string{\"--advertise-tags=tag:foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"change_tags\",\n\t\t\tflags: []string{\"--advertise-tags=tag:foo\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"explicit_empty_operator\",\n\t\t\tflags: []string{\"--operator=\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"explicit_empty_operator\",\n\t\t\tflags: []string{\"--operator=\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"enable_ssh\",\n\t\t\tflags: []string{\"--ssh\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"enable_ssh\",\n\t\t\tflags: []string{\"--ssh\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:  \"disable_ssh\",\n\t\t\tflags: []string{\"--ssh=false\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:  \"disable_ssh\",\n\t\t\tflags: []string{\"--ssh=false\"},\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"disable_ssh_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--ssh=false\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"disable_ssh_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--ssh=false\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"enable_ssh_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--ssh=true\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"enable_ssh_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--ssh=true\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"enable_ssh_over_ssh\",\n\t\t\tflags:            []string{\"--ssh=true\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"enable_ssh_over_ssh\",\n\t\t\tflags:            []string{\"--ssh=true\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"disable_ssh_over_ssh\",\n\t\t\tflags:            []string{\"--ssh=false\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"disable_ssh_over_ssh\",\n\t\t\tflags:            []string{\"--ssh=false\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"force_reauth_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--force-reauth\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"force_reauth_over_ssh_no_risk\",\n\t\t\tflags:            []string{\"--force-reauth\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "name:             \"force_reauth_over_ssh\",\n\t\t\tflags:            []string{\"--force-reauth\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          \"https://login.tailscale.com\"",
+   "new": "name:             \"force_reauth_over_ssh\",\n\t\t\tflags:            []string{\"--force-reauth\", \"--accept-risk=lose-ssh\"},\n\t\t\tsshOverTailscale: true,\n\t\t\tcurPrefs: &ipn.Prefs{\n\t\t\t\tControlURL:          ipn.DefaultControlURL"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli_test.go"
+   ],
+   "old": "TestDocs/tailscale/completion/",
+   "new": "TestDocs/{{CliName}}/completion/"
+  },
+  {
+   "files": [
+    "safesocket/safesocket_darwin.go"
+   ],
+   "old": "\t\treturn portAndTokenFromSameUserProof()",
+   "new": "\t\t// Ghostline (rebrand rule): never adopt sameuserproof credentials. They belong to an official\n\t\t// Tailscale app or system extension (lsof IPNExtension / ipnport) and would let this CLI drive it.\n\t\treturn 0, \"\", ErrTokenNotFound"
+  },
+  {
+   "files": [
+    "safesocket/safesocket_darwin.go"
+   ],
+   "old": "sharedDir:   \"/Library/Tailscale\",",
+   "new": "sharedDir:   \"/Library/{{DataDirName}}\","
+  },
+  {
+   "files": [
+    "safesocket/safesocket_darwin_test.go"
+   ],
+   "old": "\t// Behave as macSysExt when initializing sameuserproof\n\ttstest.Replace(t, &ssd.isMacSysExt, func() bool { return true })\n\tif err := initSameUserProofToken(dir, wantPort, wantToken); err != nil {\n\t\tt.Fatalf(\"initSameUserProofToken: %v\", err)\n\t}\n\n\tgotPort, gotToken, err := LocalTCPPortAndToken()\n\tif err != nil {\n\t\tt.Fatalf(\"unexpected error: %v\", err)\n\t}\n\n\tif gotPort != wantPort {\n\t\tt.Errorf(\"port: got %d, want %d\", gotPort, wantPort)\n\t}\n\n\tif gotToken != wantToken {\n\t\tt.Errorf(\"token: got %s, want %s\", gotToken, wantToken)\n\t}",
+   "new": "\t// Behave as macSysExt when initializing sameuserproof\n\ttstest.Replace(t, &ssd.isMacSysExt, func() bool { return true })\n\tif err := initSameUserProofToken(dir, wantPort, wantToken); err != nil {\n\t\tt.Fatalf(\"initSameUserProofToken: %v\", err)\n\t}\n\n\t// Ghostline never adopts sameuserproof credentials (they may belong to an official Tailscale install).\n\tif gotPort, gotToken, err := LocalTCPPortAndToken(); err == nil {\n\t\tt.Fatalf(\"adopted sameuserproof credentials port=%d token=%q\", gotPort, gotToken)\n\t}"
+  },
+  {
+   "files": [
+    "util/winutil/winutil_windows.go"
+   ],
+   "old": "regBase       = `SOFTWARE\\Tailscale IPN`",
+   "new": "regBase       = `SOFTWARE\\{{DataDirName}} IPN`"
+  },
+  {
+   "files": [
+    "util/syspolicy/source/policy_store_windows.go"
+   ],
+   "old": "`Tailscale IPN`",
+   "new": "`{{DataDirName}} IPN`"
+  },
+  {
+   "files": [
+    "net/dns/nrpt_windows.go"
+   ],
+   "old": "nrptSingleRuleID = `{5abe529b-675b-4486-8459-25a634dacc23}`",
+   "new": "nrptSingleRuleID = `{{NrptRuleGuid}}`"
+  },
+  {
+   "files": [
+    "net/dns/manager_windows.go",
+    "net/dns/manager_windows_test.go"
+   ],
+   "old": "# TailscaleHostsSectionStart",
+   "new": "# {{ProductName}}HostsSectionStart"
+  },
+  {
+   "files": [
+    "net/dns/manager_windows.go",
+    "net/dns/manager_windows_test.go"
+   ],
+   "old": "# TailscaleHostsSectionEnd",
+   "new": "# {{ProductName}}HostsSectionEnd"
+  },
+  {
+   "files": [
+    "net/dns/manager_windows.go",
+    "net/dns/manager_windows_test.go"
+   ],
+   "old": "# This section contains MagicDNS entries for Tailscale.",
+   "new": "# This section contains MagicDNS entries for {{ProductName}}."
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/profiles_windows.go"
+   ],
+   "old": "\"AppData\", \"Local\", \"Tailscale\")",
+   "new": "\"AppData\", \"Local\", \"{{DataDirName}}\")"
+  },
+  {
+   "files": [
+    "wgengine/router/osrouter/router_windows.go"
+   ],
+   "old": "Tailscale-In",
+   "new": "{{ProductName}}-In"
+  },
+  {
+   "files": [
+    "wgengine/router/osrouter/router_windows.go"
+   ],
+   "old": "Tailscale-Process",
+   "new": "{{ProductName}}-Process"
+  },
+  {
+   "files": [
+    "net/captivedetection/endpoints.go"
+   ],
+   "old": "\t\t// we use the static DERPMap from dnsfallback.\n\t\tlogf(\"captivedetection: current DERPMap is empty, using map from dnsfallback\")\n\t\tderpMap = dnsfallback.GetDERPMap()",
+   "new": "\t\t// we use an empty map: Ghostline never falls back to the public Tailscale DERP map.\n\t\tlogf(\"captivedetection: current DERPMap is empty, probing only the control endpoint\")\n\t\tderpMap = &tailcfg.DERPMap{}"
+  },
+  {
+   "files": [
+    "net/captivedetection/endpoints.go"
+   ],
+   "old": "\t\"tailscale.com/net/dnsfallback\"\n",
+   "new": ""
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback.go"
+   ],
+   "old": "func lookup(ctx context.Context, host string, logf logger.Logf, ht *health.Tracker, netMon *netmon.Monitor) ([]netip.Addr, error) {\n\tif ip, err := netip.ParseAddr(host); err == nil && ip.IsValid() {\n\t\treturn []netip.Addr{ip}, nil\n\t}\n",
+   "new": "// ghostlineBootstrapDNSDisabled turns off bootstrap DNS over DERP (see lookup).\n// It is a constant so that the upstream code after the check stays compiled and vetted.\nconst ghostlineBootstrapDNSDisabled = true\n\n// errGhostlineBootstrapDisabled is what lookup returns for every host name.\nvar errGhostlineBootstrapDisabled = errors.New(\"dnsfallback: bootstrap DNS over DERP is disabled in {{ProductName}} builds\")\n\nfunc lookup(ctx context.Context, host string, logf logger.Logf, ht *health.Tracker, netMon *netmon.Monitor) ([]netip.Addr, error) {\n\tif ip, err := netip.ParseAddr(host); err == nil && ip.IsValid() {\n\t\treturn []netip.Addr{ip}, nil\n\t}\n\tif ghostlineBootstrapDNSDisabled {\n\t\treturn nil, errGhostlineBootstrapDisabled\n\t}\n"
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback.go"
+   ],
+   "old": "// getStaticDERPMap returns the DERP map that was compiled into this binary.\nfunc getStaticDERPMap() *tailcfg.DERPMap {\n\tdm := new(tailcfg.DERPMap)\n\tif err := json.Unmarshal(staticDERPMapJSON, dm); err != nil {\n\t\tpanic(err)\n\t}\n\treturn dm\n}\n",
+   "new": "func getStaticDERPMap() *tailcfg.DERPMap {\n\treturn &tailcfg.DERPMap{Regions: map[tailcfg.DERPRegionID]*tailcfg.DERPRegion{}}\n}\n"
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback_test.go"
+   ],
+   "old": "\tif len(dm.Regions) == 0 {\n\t\tt.Fatal(\"no regions\")\n\t}\n",
+   "new": "\tif dm.Regions == nil {\n\t\tt.Fatal(\"nil regions map\")\n\t}\n\tif cachedDERPMap.Load() == nil && len(dm.Regions) != 0 {\n\t\tt.Fatalf(\"got %d regions without a cached map; want none\", len(dm.Regions))\n\t}\n"
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback_test.go"
+   ],
+   "old": "\t// Verify that our cache can't override a statically-baked-in DERP server.\n\tn0 := dm.Regions[1].Nodes[0]\n\tif n0.IPv4 == \"127.0.0.1\" || n0.IPv6 == \"::1\" {\n\t\tt.Errorf(\"got %+v; expected no overwrite for node\", n0)\n\t}\n\n\t// Also, make sure that the static DERP map still has the same first\n\t// node as when this test was last written/updated; this ensures that\n\t// we don't accidentally start allowing overwrites due to some of the\n\t// test's assumptions changing out from underneath us as we update the\n\t// JSON file of fallback servers.\n\tif getStaticDERPMap().Regions[1].Nodes[0].HostName != \"derp1c.tailscale.com\" {\n\t\tt.Errorf(\"DERP server has a different name; please update this test\")\n\t}\n",
+   "new": "\tif !reflect.DeepEqual(dm.Regions[1], initialCache.Regions[1]) {\n\t\tt.Errorf(\"region 1: got %+v; want the cached %+v\", dm.Regions[1], initialCache.Regions[1])\n\t}\n\tif n := len(getStaticDERPMap().Regions); n != 0 {\n\t\tt.Errorf(\"static DERP map has %d regions; want none\", n)\n\t}\n"
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback_test.go"
+   ],
+   "old": "\tif !*extNetwork {\n\t\tt.Skip(\"skipping test without --use-external-network\")\n\t}\n",
+   "new": "\tif !*extNetwork {\n\t\tt.Skip(\"skipping test without --use-external-network\")\n\t}\n\tif ghostlineBootstrapDNSDisabled {\n\t\tt.Skip(\"bootstrap DNS is disabled in this build; TestGhostlineBootstrapDNSDisabled covers lookup\")\n\t}\n"
+  },
+  {
+   "files": [
+    "net/dnsfallback/dnsfallback_test.go"
+   ],
+   "old": "var extNetwork = flag.Bool(",
+   "new": "// TestGhostlineBootstrapDNSDisabled checks that no host name is sent to a DERP\n// server for bootstrap DNS, even when a cached DERP map offers candidates.\nfunc TestGhostlineBootstrapDNSDisabled(t *testing.T) {\n\tif n := len(getStaticDERPMap().Regions); n != 0 {\n\t\tt.Fatalf(\"static DERP map has %d regions; want none\", n)\n\t}\n\tcachedDERPMap.Store(&tailcfg.DERPMap{Regions: map[tailcfg.DERPRegionID]*tailcfg.DERPRegion{\n\t\t900: {RegionID: 900, Nodes: []*tailcfg.DERPNode{{Name: \"900a\", RegionID: 900, HostName: \"relay.example\", IPv4: \"192.0.2.10\"}}},\n\t}})\n\tdefer cachedDERPMap.Store(nil)\n\n\tlogged := 0\n\tlogf := func(format string, args ...any) {\n\t\tlogged++\n\t\tt.Logf(format, args...)\n\t}\n\t// Canceled, so that no network I/O happens even if a candidate were tried.\n\tctx, cancel := context.WithCancel(context.Background())\n\tcancel()\n\tfor _, host := range []string{\"{{ControlHost}}\", \"controlplane.tailscale.com\"} {\n\t\taddrs, err := lookup(ctx, host, logf, nil, nil)\n\t\tif err != errGhostlineBootstrapDisabled || addrs != nil {\n\t\t\tt.Errorf(\"lookup(%q) = %v, %v; want nil, %v\", host, addrs, err, errGhostlineBootstrapDisabled)\n\t\t}\n\t}\n\tif logged != 0 {\n\t\tt.Errorf(\"lookup logged %d bootstrap DNS attempts; want none\", logged)\n\t}\n\t// IP literals still map to themselves without any lookup.\n\taddrs, err := lookup(ctx, \"192.0.2.10\", logf, nil, nil)\n\tif err != nil || len(addrs) != 1 || addrs[0] != netip.MustParseAddr(\"192.0.2.10\") {\n\t\tt.Errorf(\"lookup(192.0.2.10) = %v, %v; want the address itself\", addrs, err)\n\t}\n}\n\nvar extNetwork = flag.Bool("
+  },
+  {
+   "files": [
+    "net/captivedetection/captivedetection_test.go"
+   ],
+   "old": "func TestAvailableEndpointsAlwaysAtLeastTwo(t *testing.T) {\n\tendpoints := availableEndpoints(nil, 0, t.Logf, runtime.GOOS)\n\tif len(endpoints) == 0 {\n\t\tt.Errorf(\"Expected non-empty AvailableEndpoints, got an empty slice instead\")\n\t}\n\tif len(endpoints) == 1 {\n\t\tt.Errorf(\"Expected at least two AvailableEndpoints for redundancy, got only one instead\")\n\t}\n\tfor _, e := range endpoints {\n\t\tif e.URL.Scheme != \"http\" {\n\t\t\tt.Errorf(\"Expected HTTP URL in Endpoint, got HTTPS\")\n\t\t}\n\t}\n}\n",
+   "new": "func TestAvailableEndpointsControlHostOnly(t *testing.T) {\n\tendpoints := availableEndpoints(nil, 0, t.Logf, runtime.GOOS)\n\tif len(endpoints) != 1 {\n\t\tt.Fatalf(\"Expected exactly the configured control endpoint without a DERP map, got %d endpoints %v\", len(endpoints), endpoints)\n\t}\n\tif e := endpoints[0]; e.URL.Scheme != \"http\" || e.URL.Host != \"{{ControlHost}}\" || e.URL.Path != \"/generate_204\" || e.Provider != Tailscale {\n\t\tt.Errorf(\"Unexpected captive-detection endpoint %v; want http://{{ControlHost}}/generate_204\", e)\n\t}\n}\n"
+  },
+  {
+   "files": [
+    "net/captivedetection/captivedetection_test.go"
+   ],
+   "old": "func TestEndpointsAreUpAndReturnExpectedResponse(t *testing.T) {\n\tnettest.SkipIfNoNetwork(t)\n",
+   "new": "func TestEndpointsAreUpAndReturnExpectedResponse(t *testing.T) {\n\tt.Skip(\"the only default endpoint is the configured control host, unreachable from CI\")\n\tnettest.SkipIfNoNetwork(t)\n"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/serve_legacy_test.go",
+    "cmd/tailscale/cli/serve_v2_test.go"
+   ],
+   "old": "// SPDX-License-Identifier: BSD-3-Clause\n\npackage cli\n",
+   "new": "// SPDX-License-Identifier: BSD-3-Clause\n\n//go:build !ts_omit_serve\n\npackage cli\n"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/web_test.go"
+   ],
+   "old": "// SPDX-License-Identifier: BSD-3-Clause\n\npackage cli\n",
+   "new": "// SPDX-License-Identifier: BSD-3-Clause\n\n//go:build !ts_omit_webclient\n\npackage cli\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/serve_test.go"
+   ],
+   "old": "import (\n\t\"bytes\"\n\t\"cmp\"\n\t\"context\"\n\t\"crypto/tls\"\n\t\"encoding/json\"\n\t\"errors\"\n\t\"fmt\"\n\t\"io\"\n\t\"mime\"\n\t\"net\"\n\t\"net/http\"\n\t\"net/http/httptest\"\n\t\"net/netip\"\n\t\"net/url\"\n\t\"os\"\n\t\"path/filepath\"\n\t\"reflect\"\n\t\"strconv\"\n\t\"strings\"\n\t\"sync\"\n\t\"testing\"\n\t\"time\"\n\n\t\"tailscale.com/control/controlclient\"\n\t\"tailscale.com/envknob\"\n\t\"tailscale.com/health\"\n\t\"tailscale.com/ipn\"\n\t\"tailscale.com/ipn/store/mem\"\n\t\"tailscale.com/net/netmon\"\n\t\"tailscale.com/net/tsdial\"\n\t\"tailscale.com/tailcfg\"\n\t\"tailscale.com/tailcfg/nodecap\"\n\t\"tailscale.com/tailcfg/peercap\"\n\t\"tailscale.com/tsd\"\n\t\"tailscale.com/tstest\"\n\t\"tailscale.com/types/logger\"\n\t\"tailscale.com/types/logid\"\n\t\"tailscale.com/types/netmap\"\n\t\"tailscale.com/util/eventbus/eventbustest\"\n\t\"tailscale.com/util/mak\"\n\t\"tailscale.com/util/must\"\n\t\"tailscale.com/util/syspolicy/policyclient\"\n\t\"tailscale.com/wgengine\"\n\t\"tailscale.com/wgengine/filter\"\n)\n",
+   "new": "import (\n\t\"bytes\"\n\t\"cmp\"\n\t\"context\"\n\t\"crypto/tls\"\n\t\"encoding/json\"\n\t\"errors\"\n\t\"fmt\"\n\t\"io\"\n\t\"mime\"\n\t\"net\"\n\t\"net/http\"\n\t\"net/http/httptest\"\n\t\"net/netip\"\n\t\"net/url\"\n\t\"os\"\n\t\"path/filepath\"\n\t\"reflect\"\n\t\"strconv\"\n\t\"strings\"\n\t\"sync\"\n\t\"testing\"\n\t\"time\"\n\n\t\"tailscale.com/control/controlclient\"\n\t\"tailscale.com/envknob\"\n\t\"tailscale.com/health\"\n\t\"tailscale.com/ipn\"\n\t\"tailscale.com/net/netmon\"\n\t\"tailscale.com/net/tsdial\"\n\t\"tailscale.com/tailcfg\"\n\t\"tailscale.com/tailcfg/nodecap\"\n\t\"tailscale.com/tailcfg/peercap\"\n\t\"tailscale.com/types/netmap\"\n\t\"tailscale.com/util/eventbus/eventbustest\"\n\t\"tailscale.com/util/mak\"\n\t\"tailscale.com/util/must\"\n\t\"tailscale.com/wgengine/filter\"\n)\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/serve_test.go"
+   ],
+   "old": "func newTestBackend(t *testing.T, opts ...any) *LocalBackend {\n\tvar logf logger.Logf = logger.Discard\n\tconst debug = false\n\tif debug {\n\t\tlogf = logger.WithPrefix(tstest.WhileTestRunningLogger(t), \"... \")\n\t}\n\n\tbus := eventbustest.NewBus(t)\n\tsys := tsd.NewSystemWithBus(bus)\n\n\tfor _, o := range opts {\n\t\tswitch v := o.(type) {\n\t\tcase policyclient.Client:\n\t\t\tsys.PolicyClient.Set(v)\n\t\tdefault:\n\t\t\tpanic(fmt.Sprintf(\"unsupported option type %T\", v))\n\t\t}\n\t}\n\n\te, err := wgengine.NewUserspaceEngine(logf, wgengine.Config{\n\t\tSetSubsystem:  sys.Set,\n\t\tHealthTracker: sys.HealthTracker.Get(),\n\t\tMetrics:       sys.UserMetricsRegistry(),\n\t\tEventBus:      sys.Bus.Get(),\n\t})\n\tif err != nil {\n\t\tt.Fatal(err)\n\t}\n\tsys.Set(e)\n\tsys.Set(new(mem.Store))\n\n\tb, err := NewLocalBackend(logf, logid.PublicID{}, sys, 0)\n\tif err != nil {\n\t\tt.Fatal(err)\n\t}\n\tt.Cleanup(b.Shutdown)\n\tdir := t.TempDir()\n\tb.SetVarRoot(dir)\n\n\tpm := must.Get(newProfileManager(new(mem.Store), logf, health.NewTracker(bus)))\n\tpm.currentProfile = (&ipn.LoginProfile{ID: \"id0\"}).View()\n\tb.pm = pm\n\n\tb.currentNode().SetNetMap(&netmap.NetworkMap{\n\t\tSelfNode: (&tailcfg.Node{\n\t\t\tName: \"example.ts.net\",\n\t\t\tAddresses: []netip.Prefix{\n\t\t\t\tnetip.MustParsePrefix(\"100.150.151.151/32\"),\n\t\t\t},\n\t\t}).View(),\n\t\tUserProfiles: map[tailcfg.UserID]tailcfg.UserProfileView{\n\t\t\ttailcfg.UserID(1): (&tailcfg.UserProfile{\n\t\t\t\tLoginName:     \"someone@example.com\",\n\t\t\t\tDisplayName:   \"Some One\",\n\t\t\t\tProfilePicURL: \"https://example.com/photo.jpg\",\n\t\t\t}).View(),\n\t\t},\n\t\tPeers: []tailcfg.NodeView{\n\t\t\t(&tailcfg.Node{\n\t\t\t\tID:           152,\n\t\t\t\tComputedName: \"some-peer\",\n\t\t\t\tUser:         tailcfg.UserID(1),\n\t\t\t\tKey:          makeNodeKeyFromID(152),\n\t\t\t\tAddresses: []netip.Prefix{\n\t\t\t\t\tnetip.MustParsePrefix(\"100.150.151.152/32\"),\n\t\t\t\t},\n\t\t\t}).View(),\n\t\t\t(&tailcfg.Node{\n\t\t\t\tID:           153,\n\t\t\t\tComputedName: \"some-tagged-peer\",\n\t\t\t\tTags:         []string{\"tag:server\", \"tag:test\"},\n\t\t\t\tUser:         tailcfg.UserID(1),\n\t\t\t\tKey:          makeNodeKeyFromID(153),\n\t\t\t\tAddresses: []netip.Prefix{\n\t\t\t\t\tnetip.MustParsePrefix(\"100.150.151.153/32\"),\n\t\t\t\t},\n\t\t\t}).View(),\n\t\t},\n\t})\n\treturn b\n}\n\n",
+   "new": "// The serve-only parts of these local_test.go tests (vipServiceHash, setServeConfigLocked) are passed\n// in from here, so local_test.go also builds with ts_omit_serve. newTestBackend is in local_test.go:\n// tests outside the serve files use it too.\nfunc TestUpdateIngressAndServiceHashLocked(t *testing.T) {\n\ttestUpdateIngressAndServiceHashLocked(t, vipServiceHash)\n}\n\nfunc TestTCPHandlerForDstWithVIPService(t *testing.T) {\n\ttestTCPHandlerForDstWithVIPService(t, (*LocalBackend).setServeConfigLocked)\n}\n\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "func makeNodeKeyFromID(nodeID tailcfg.NodeID) key.NodePublic {\n",
+   "new": "// newTestBackend ({{ProductName}}: moved here from serve_test.go) is used by the disk cache, extension\n// host and local tests as well as the serve tests. serve_test.go is not built with ts_omit_serve,\n// so that tag (always set for {{ProductName}}) would leave those other tests without it.\nfunc newTestBackend(t *testing.T, opts ...any) *LocalBackend {\n\tvar logf logger.Logf = logger.Discard\n\tconst debug = false\n\tif debug {\n\t\tlogf = logger.WithPrefix(tstest.WhileTestRunningLogger(t), \"... \")\n\t}\n\n\tbus := eventbustest.NewBus(t)\n\tsys := tsd.NewSystemWithBus(bus)\n\n\tfor _, o := range opts {\n\t\tswitch v := o.(type) {\n\t\tcase policyclient.Client:\n\t\t\tsys.PolicyClient.Set(v)\n\t\tdefault:\n\t\t\tpanic(fmt.Sprintf(\"unsupported option type %T\", v))\n\t\t}\n\t}\n\n\te, err := wgengine.NewUserspaceEngine(logf, wgengine.Config{\n\t\tSetSubsystem:  sys.Set,\n\t\tHealthTracker: sys.HealthTracker.Get(),\n\t\tMetrics:       sys.UserMetricsRegistry(),\n\t\tEventBus:      sys.Bus.Get(),\n\t})\n\tif err != nil {\n\t\tt.Fatal(err)\n\t}\n\tsys.Set(e)\n\tsys.Set(new(mem.Store))\n\n\tb, err := NewLocalBackend(logf, logid.PublicID{}, sys, 0)\n\tif err != nil {\n\t\tt.Fatal(err)\n\t}\n\tt.Cleanup(b.Shutdown)\n\tdir := t.TempDir()\n\tb.SetVarRoot(dir)\n\n\tpm := must.Get(newProfileManager(new(mem.Store), logf, health.NewTracker(bus)))\n\tpm.currentProfile = (&ipn.LoginProfile{ID: \"id0\"}).View()\n\tb.pm = pm\n\n\tb.currentNode().SetNetMap(&netmap.NetworkMap{\n\t\tSelfNode: (&tailcfg.Node{\n\t\t\tName: \"example.ts.net\",\n\t\t\tAddresses: []netip.Prefix{\n\t\t\t\tnetip.MustParsePrefix(\"100.150.151.151/32\"),\n\t\t\t},\n\t\t}).View(),\n\t\tUserProfiles: map[tailcfg.UserID]tailcfg.UserProfileView{\n\t\t\ttailcfg.UserID(1): (&tailcfg.UserProfile{\n\t\t\t\tLoginName:     \"someone@example.com\",\n\t\t\t\tDisplayName:   \"Some One\",\n\t\t\t\tProfilePicURL: \"https://example.com/photo.jpg\",\n\t\t\t}).View(),\n\t\t},\n\t\tPeers: []tailcfg.NodeView{\n\t\t\t(&tailcfg.Node{\n\t\t\t\tID:           152,\n\t\t\t\tComputedName: \"some-peer\",\n\t\t\t\tUser:         tailcfg.UserID(1),\n\t\t\t\tKey:          makeNodeKeyFromID(152),\n\t\t\t\tAddresses: []netip.Prefix{\n\t\t\t\t\tnetip.MustParsePrefix(\"100.150.151.152/32\"),\n\t\t\t\t},\n\t\t\t}).View(),\n\t\t\t(&tailcfg.Node{\n\t\t\t\tID:           153,\n\t\t\t\tComputedName: \"some-tagged-peer\",\n\t\t\t\tTags:         []string{\"tag:server\", \"tag:test\"},\n\t\t\t\tUser:         tailcfg.UserID(1),\n\t\t\t\tKey:          makeNodeKeyFromID(153),\n\t\t\t\tAddresses: []netip.Prefix{\n\t\t\t\t\tnetip.MustParsePrefix(\"100.150.151.153/32\"),\n\t\t\t\t},\n\t\t\t}).View(),\n\t\t},\n\t})\n\treturn b\n}\n\nfunc makeNodeKeyFromID(nodeID tailcfg.NodeID) key.NodePublic {\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "func TestUpdateIngressAndServiceHashLocked(t *testing.T) {\n",
+   "new": "// testUpdateIngressAndServiceHashLocked takes vipServiceHash, which is in serve.go, as a parameter:\n// TestUpdateIngressAndServiceHashLocked in serve_test.go runs it when serve is compiled in, and the\n// rest of this file still builds with ts_omit_serve ({{ProductName}}).\nfunc testUpdateIngressAndServiceHashLocked(t *testing.T, vipServiceHash func(logger.Logf, []*tailcfg.VIPService) string) {\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "func TestTCPHandlerForDstWithVIPService(t *testing.T) {\n\tb := newTestBackend(t)\n",
+   "new": "// testTCPHandlerForDstWithVIPService takes setServeConfigLocked, which is in serve.go, as a parameter:\n// TestTCPHandlerForDstWithVIPService in serve_test.go runs it when serve is compiled in ({{ProductName}}).\nfunc testTCPHandlerForDstWithVIPService(t *testing.T, setServeConfigLocked func(*LocalBackend, *ipn.ServeConfig, string) error) {\n\tb := newTestBackend(t)\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\terr = b.setServeConfigLocked(\n",
+   "new": "\terr = setServeConfigLocked(b,\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/shutdown_test.go"
+   ],
+   "old": "\t\tb.mu.Unlock()\n\t\tb.ServeConfig()\n\t})",
+   "new": "\t\tb.mu.Unlock()\n\t\tb.NodeKey() // takes b.mu; ServeConfig, used upstream, is not built with ts_omit_serve\n\t})"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\t\"tailscale.com/feature\"\n",
+   "new": "\t\"tailscale.com/feature\"\n\t\"tailscale.com/feature/buildfeatures\"\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\t\t\tif !feature.CanAutoUpdate() {\n\t\t\t\twant = tt.before\n",
+   "new": "\t\t\tif !buildfeatures.HasClientUpdate || !feature.CanAutoUpdate() {\n\t\t\t\twant = tt.before\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\twantErr := !feature.CanAutoUpdate()\n",
+   "new": "\twantErr := !buildfeatures.HasClientUpdate || !feature.CanAutoUpdate()\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\t\t\tgot := lb.vipServicesFromPrefsLocked(prefs.View())\n",
+   "new": "\t\t\tgot := lb.vipServicesFromPrefsLocked(prefs.View())\n\t\t\tif !buildfeatures.HasServe {\n\t\t\t\t// {{ProductName}} builds with ts_omit_serve: no VIP services are advertised or served.\n\t\t\t\ttt.want = nil\n\t\t\t}\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\t\t{\"saas_bad_hostname\", \"https://login.tailscale.com\", \"https://example.com/a/foo\", false},\n",
+   "new": "\t\t{\"saas_bad_hostname\", \"https://login.tailscale.com\", \"https://example.com/a/foo\", true},\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local_test.go"
+   ],
+   "old": "\t\t\t\t\tURL:   \"https://www.evil.com\",\n",
+   "new": "\t\t\t\t\tURL:   \"http://www.evil.com\",\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/c2n_test.go"
+   ],
+   "old": "\t\"tailscale.com/tailcfg\"\n",
+   "new": "\t\"tailscale.com/feature/buildfeatures\"\n\t\"tailscale.com/tailcfg\"\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/c2n_test.go"
+   ],
+   "old": "\t\t\twantStatus := 200\n",
+   "new": "\t\t\tif !buildfeatures.HasDebug {\n\t\t\t\t// {{ProductName}} builds with ts_omit_debug: the c2n debug netmap handler must not be included.\n\t\t\t\tif res.StatusCode != 501 {\n\t\t\t\t\tt.Fatalf(\"status code = %v; want 501 without the debug feature. Body: %s\", res.Status, rec.Body.Bytes())\n\t\t\t\t}\n\t\t\t\treturn\n\t\t\t}\n\t\t\twantStatus := 200\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/peerapi_test.go"
+   ],
+   "old": "\t\"tailscale.com/appc/appctest\"\n",
+   "new": "\t\"tailscale.com/appc/appctest\"\n\t\"tailscale.com/feature/buildfeatures\"\n"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/peerapi_test.go"
+   ],
+   "old": "\t\t\tfor _, f := range tt.checks {\n",
+   "new": "\t\t\twant := tt.checks\n\t\t\tif !buildfeatures.HasDebug && (strings.HasPrefix(tt.name, \"goroutines/\") || tt.name == \"host-val/peer\") {\n\t\t\t\t// {{ProductName}} builds with ts_omit_debug: these requests reach the debug peerapi paths\n\t\t\t\t// (/v0/goroutines, /v0/env), which must not exist.\n\t\t\t\twant = checks(httpStatus(404), bodyContains(\"unsupported peerapi path\"))\n\t\t\t}\n\t\t\tfor _, f := range want {\n"
+  },
+  {
+   "files": [
+    "go.mod"
+   ],
+   "old": "\ngo 1.27.3\n",
+   "new": "\ngo 1.27.4\n"
+  },
+  {
+   "files": [
+    "go.mod"
+   ],
+   "old": "\tgithub.com/klauspost/compress v1.20.0\n",
+   "new": "\tgithub.com/klauspost/compress v1.20.2\n"
+  },
+  {
+   "files": [
+    "go.sum"
+   ],
+   "old": "github.com/klauspost/compress v1.20.0/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=\n",
+   "new": "github.com/klauspost/compress v1.20.0/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=\ngithub.com/klauspost/compress v1.20.2 h1:v5tiZvm1KGLyg5d5oXdXe3lsSPrbEUiKoXGia//I7Qo=\ngithub.com/klauspost/compress v1.20.2/go.mod h1:LUdAzn7YLVvxLpc7y3V1m40wESHTgc1422pwwBSKYuI=\n"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "Use 'sudo tailscale %s'.\\nTo not require root, use 'sudo tailscale set --operator=$USER' once.",
+   "new": "Use 'sudo {{CliName}} %s'.\\nTo not require root, use 'sudo {{CliName}} set --operator=$USER' once."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "For help on subcommands, add --help after: \"tailscale status --help\".",
+   "new": "For help on subcommands, add --help after: \"{{CliName}} status --help\"."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "\"tailscale: unknown subcommand: %s\"",
+   "new": "\"{{CliName}}: unknown subcommand: %s\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "\"path to tailscaled socket\"",
+   "new": "\"path to {{ServiceName}} socket\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/cli.go"
+   ],
+   "old": "\"Warning: client version %q != tailscaled server version %q\\n\"",
+   "new": "\"Warning: client version %q != {{ServiceName}} server version %q\\n\""
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "\"tailscaled requires root; use sudo tailscaled (or use --tun=userspace-networking)\"",
+   "new": "\"{{ServiceName}} requires root; use sudo {{ServiceName}} (or use --tun=userspace-networking)\""
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "\"tailscaled does not take non-flag arguments: %q\"",
+   "new": "\"{{ServiceName}} does not take non-flag arguments: %q\""
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "how tailscaled is being run: \"\" (the default) is the Tailscale service or an administrator standing in for it",
+   "new": "how {{ServiceName}} is being run: \"\" (the default) is the {{ProductName}} service or an administrator standing in for it"
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "the Tailscale service must use the default socket",
+   "new": "the {{ProductName}} service must use the default socket"
+  },
+  {
+   "files": [
+    "cmd/tailscaled/tailscaled.go"
+   ],
+   "old": "(the default, for the Tailscale service)",
+   "new": "(the default, for the {{ProductName}} service)"
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "Title:    \"Tailscale off\",",
+   "new": "Title:    \"{{ProductName}} off\","
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"Tailscale is stopped.\")",
+   "new": "StaticMessage(\"{{ProductName}} is stopped.\")"
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"Tailscale cannot connect because the network is down. Check your Internet connection.\")",
+   "new": "StaticMessage(\"{{ProductName}} cannot connect because the network is down. Check your Internet connection.\")"
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"This is an unstable version of Tailscale meant for testing and development purposes. Please report any issues to Tailscale.\")",
+   "new": "StaticMessage(\"This is an unstable build of {{ProductName}} meant for testing and development purposes. Do not report its issues to Tailscale.\")"
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": " Run `tailscale update` or `tailscale set --auto-update` to update now.",
+   "new": " Download the latest release to update."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/status.go"
+   ],
+   "old": "return \"Tailscale is stopped.\", false",
+   "new": "return \"{{ProductName}} is stopped.\", false"
+  },
+  {
+   "files": [
+    "ipn/store.go"
+   ],
+   "old": "Title:    \"Tailscale state store failed to initialize\",",
+   "new": "Title:    \"{{ProductName}} state store failed to initialize\","
+  },
+  {
+   "files": [
+    "ipn/store.go"
+   ],
+   "old": "State store failed to initialize, Tailscale will not work until this is resolved. See https://tailscale.com/s/state-store-init-error. Error: %s",
+   "new": "State store failed to initialize, {{ProductName}} will not work until this is resolved. Error: %s"
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local.go"
+   ],
+   "old": "\"Unable to enable local Tailscale SSH server; not enabled on Tailnet. See https://tailscale.com/s/ssh\"",
+   "new": "\"Unable to enable the local {{ProductName}} SSH server; not enabled on Tailnet.\""
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local.go"
+   ],
+   "old": "\"Unable to enable local Tailscale SSH server; not enabled on Tailnet.\"",
+   "new": "\"Unable to enable the local {{ProductName}} SSH server; not enabled on Tailnet.\""
+  },
+  {
+   "files": [
+    "ipn/ipnlocal/local.go"
+   ],
+   "old": "StaticMessage(\"SELinux is enabled; Tailscale SSH may not work. See https://tailscale.com/s/ssh-selinux\")",
+   "new": "StaticMessage(\"SELinux is enabled; {{ProductName}} SSH may not work.\")"
+  },
+  {
+   "files": [
+    "wf/firewall.go"
+   ],
+   "old": "Name:    \"Tailscale firewall\",",
+   "new": "Name:    \"{{ProductName}} firewall\","
+  },
+  {
+   "files": [
+    "wf/firewall.go"
+   ],
+   "old": "Name: \"Tailscale provider\",",
+   "new": "Name: \"{{ProductName}} provider\","
+  },
+  {
+   "files": [
+    "wf/firewall.go"
+   ],
+   "old": "Name:   \"Tailscale permissive and blocking filters\",",
+   "new": "Name:   \"{{ProductName}} permissive and blocking filters\","
+  },
+  {
+   "files": [
+    "net/dns/resolvconffile/resolvconffile.go",
+    "net/dns/direct_test.go",
+    "net/dns/direct_linux_test.go"
+   ],
+   "old": "# For more info, see https://tailscale.com/s/resolvconf-overwrite",
+   "new": "# Written by the {{ProductName}} mesh daemon ({{ServiceName}})."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go"
+   ],
+   "old": "ShortHelp:  \"Connect to Tailscale, logging in if needed\",",
+   "new": "ShortHelp:  \"Connect to the {{ProductName}} mesh, logging in if needed\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go"
+   ],
+   "old": "\"tailscale up\" connects this machine to your Tailscale network,",
+   "new": "\"{{CliName}} up\" connects this machine to your {{ProductName}} mesh,"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go"
+   ],
+   "old": "With no flags, \"tailscale up\" brings the network online without\nchanging any settings. (That is, it's the opposite of \"tailscale\ndown\").",
+   "new": "With no flags, \"{{CliName}} up\" brings the network online without\nchanging any settings. (That is, it's the opposite of \"{{CliName}}\ndown\")."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go"
+   ],
+   "old": "timeout waiting for Tailscale service to enter a Running state; check health with \"tailscale status\"",
+   "new": "timeout waiting for the {{ProductName}} service to enter a Running state; check health with \"{{CliName}} status\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go"
+   ],
+   "old": "\"maximum amount of time to wait for tailscaled to enter a Running state; default (0s) blocks forever\"",
+   "new": "\"maximum amount of time to wait for {{ServiceName}} to enter a Running state; default (0s) blocks forever\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/up.go",
+    "cmd/tailscale/cli/set.go"
+   ],
+   "old": "\"Unix username to allow to operate on tailscaled without sudo\"",
+   "new": "\"Unix username to allow to operate on {{ServiceName}} without sudo\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/down.go"
+   ],
+   "old": "ShortHelp:  \"Disconnect from Tailscale\",",
+   "new": "ShortHelp:  \"Disconnect from the {{ProductName}} mesh\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/down.go"
+   ],
+   "old": "\"Tailscale was already stopped.\\n\"",
+   "new": "\"{{ProductName}} was already stopped.\\n\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/login.go"
+   ],
+   "old": "ShortHelp:  \"Log in to a Tailscale account\",",
+   "new": "ShortHelp:  \"Log in to the {{ProductName}} control server\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/login.go"
+   ],
+   "old": "\"tailscale login\" logs this machine in to your Tailscale network.",
+   "new": "\"{{CliName}} login\" logs this machine in to your {{ProductName}} mesh."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/logout.go"
+   ],
+   "old": "ShortHelp:  \"Disconnect from Tailscale and expire current node key\",",
+   "new": "ShortHelp:  \"Disconnect from the {{ProductName}} mesh and expire current node key\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/logout.go"
+   ],
+   "old": "\"tailscale logout\" brings the network down and invalidates",
+   "new": "\"{{CliName}} logout\" brings the network down and invalidates"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/set.go"
+   ],
+   "old": "`\"tailscale set\" allows changing specific preferences.\n\nUnlike \"tailscale up\", this command",
+   "new": "`\"{{CliName}} set\" allows changing specific preferences.\n\nUnlike \"{{CliName}} up\", this command"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/ip.go"
+   ],
+   "old": "ShortHelp:  \"Show Tailscale IP addresses\",",
+   "new": "ShortHelp:  \"Show {{ProductName}} mesh IP addresses\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/ip.go"
+   ],
+   "old": "LongHelp:   \"Show Tailscale IP addresses for peer or service.",
+   "new": "LongHelp:   \"Show {{ProductName}} mesh IP addresses for peer or service."
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/ip.go"
+   ],
+   "old": "\"tailscale ip -1, -4, and -6 are mutually exclusive\"",
+   "new": "\"{{CliName}} ip -1, -4, and -6 are mutually exclusive\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/status.go"
+   ],
+   "old": "ShortHelp:  \"Show state of tailscaled and its connections\",",
+   "new": "ShortHelp:  \"Show state of {{ServiceName}} and its connections\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/status.go"
+   ],
+   "old": "\"unexpected non-flag arguments to 'tailscale status'\"",
+   "new": "\"unexpected non-flag arguments to '{{CliName}} status'\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/ping.go"
+   ],
+   "old": "ShortHelp:  \"Ping a host at the Tailscale layer, see how it routed\",",
+   "new": "ShortHelp:  \"Ping a host at the {{ProductName}} mesh layer, see how it routed\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/ping.go"
+   ],
+   "old": "\"usage: tailscale ping <hostname-or-IP>\"",
+   "new": "\"usage: {{CliName}} ping <hostname-or-IP>\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/nc.go"
+   ],
+   "old": "\"usage: tailscale nc <hostname-or-IP> <port>\"",
+   "new": "\"usage: {{CliName}} nc <hostname-or-IP> <port>\""
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/whois.go"
+   ],
+   "old": "ShortHelp:  \"Show the machine and user associated with a Tailscale IP (v4 or v6)\",",
+   "new": "ShortHelp:  \"Show the machine and user associated with a {{ProductName}} mesh IP (v4 or v6)\","
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/version.go"
+   ],
+   "old": "ShortHelp:  \"Print Tailscale version\",",
+   "new": "ShortHelp:  \"Print version information\","
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"Unable to connect to the Tailscale coordination server to synchronize the state of your tailnet.",
+   "new": "StaticMessage(\"Unable to connect to the {{ProductName}} control server to synchronize the state of your tailnet."
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "\"Tailscale could not connect to ",
+   "new": "\"{{ProductName}} could not connect to "
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "\"Tailscale hasn't heard from the ",
+   "new": "\"{{ProductName}} hasn't heard from the "
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"Tailscale couldn't listen for incoming UDP connections.\")",
+   "new": "StaticMessage(\"{{ProductName}} couldn't listen for incoming UDP connections.\")"
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "\"Tailscale hasn't received a network map from the coordination server in %s.\"",
+   "new": "\"{{ProductName}} hasn't received a network map from the control server in %s.\""
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "\"Tailscale could not establish an encrypted connection with '%q': %v\"",
+   "new": "\"{{ProductName}} could not establish an encrypted connection with '%q': %v\""
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "\"An error occurred applying the Tailscale envknob configuration stored on disk: %v\"",
+   "new": "\"An error occurred applying the {{ProductName}} envknob configuration stored on disk: %v\""
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "Title:    \"Tailscale is starting\",",
+   "new": "Title:    \"{{ProductName}} is starting\","
+  },
+  {
+   "files": [
+    "health/warnings.go"
+   ],
+   "old": "StaticMessage(\"Tailscale is starting. Please wait.\")",
+   "new": "StaticMessage(\"{{ProductName}} is starting. Please wait.\")"
+  },
+  {
+   "files": [
+    "licenses/licenses.go"
+   ],
+   "old": "func LicensesURL() string {\n\tswitch runtime.GOOS {\n\tcase \"android\":\n\t\treturn \"https://tailscale.com/licenses/android\"\n\tcase \"darwin\", \"ios\":\n\t\treturn \"https://tailscale.com/licenses/apple\"\n\tcase \"windows\":\n\t\treturn \"https://tailscale.com/licenses/windows\"\n\tdefault:\n\t\treturn \"https://tailscale.com/licenses/tailscale\"\n\t}\n}",
+   "new": "func LicensesURL() string {\n\t_ = runtime.GOOS\n\treturn \"https://github.com/Vorivant/Ghostline-Public/blob/main/THIRD-PARTY-NOTICES.md\"\n}"
+  },
+  {
+   "files": [
+    "cmd/tailscale/cli/licenses.go"
+   ],
+   "old": "Tailscale wouldn't be possible without the contributions of thousands of open\nsource developers. To see the open source packages included in Tailscale and\ntheir respective license information, visit:",
+   "new": "{{ProductName}} is built from the open-source Tailscale client and many other open-source\npackages. Their licences are in the licenses folder and THIRD-PARTY-NOTICES.md of your\ndownload, and at:"
+  }
+ ]
+}

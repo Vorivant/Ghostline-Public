@@ -1,0 +1,15 @@
+dist/
+.work/
+__pycache__/
+*.pyc
+website/preview.html
+server/.env
+server/data/
+server/config/config.yaml
+# Keys never belong in this repository.
+*.p12
+*.pfx
+*.pem
+*.key
+*.jks
+*.keystore

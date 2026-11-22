@@ -1,0 +1,11 @@
+// Who may reach whom on your mesh (Headscale policy, HuJSON). Start: every device of the same user reaches every
+// other device of that user, and nothing else. Add rules for more users or tags: https://headscale.net/stable/ref/acls/
+{
+  "grants": [
+    {
+      "src": ["autogroup:member"],
+      "dst": ["autogroup:self"],
+      "ip": ["*"]
+    }
+  ]
+}
