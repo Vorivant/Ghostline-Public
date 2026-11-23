@@ -165,7 +165,7 @@ footer p{margin:0 0 .6rem}
     <p class="muted">Free. No account with Vorivant. Pick your system. Then <a href="#verify">verify the file</a>.</p>
 
     <div id="unsigned-note" class="note" role="note">
-      <p><strong>Windows note.</strong> The Windows build is not code-signed yet. Windows SmartScreen may show a warning. This is expected. Check the SHA-256 below before you run it. Choose &ldquo;More info&rdquo;, then &ldquo;Run anyway&rdquo; only if the checksum matches.</p>
+      <p><strong>Windows note.</strong> The The Windows build is not yet Authenticode signed or independently installation-tested. Do not bypass SmartScreen to install an unverified build. Wait for a signed, accepted release, and verify its publisher and signed checksum manifest.</p>
     </div>
 
     <ul class="grid">
@@ -317,7 +317,7 @@ footer p{margin:0 0 .6rem}
 <section id="verify" aria-labelledby="verify-title">
   <div class="wrap">
     <h2 id="verify-title">Verify your download</h2>
-    <p>Each release has a list of checksums, <a href="SHA256SUMS">SHA256SUMS</a>. We sign that list with an SSH signing key. Check the signature, then check your file against the list.</p>
+    <p>Each approved release has a list of checksums, <a href="SHA256SUMS">SHA256SUMS</a>. We sign that list with an SSH signing key. Check the signature, then check your file against the list.</p>
     <p>Put these three files in the same folder as your download: <a href="SHA256SUMS">SHA256SUMS</a>, <a href="SHA256SUMS.sig">SHA256SUMS.sig</a> and the public key <a href="ghostline-release-signing.pub">ghostline-release-signing.pub</a>.</p>
 
     <h3>Linux, macOS or Windows with OpenSSH</h3>
@@ -334,7 +334,7 @@ footer p{margin:0 0 .6rem}
     <p>Print the hash of your file. Compare it with the one on this page or in <code>SHA256SUMS</code>:</p>
 <pre><code>Get-FileHash .\{{FILE_windows_amd64}} -Algorithm SHA256</code></pre>
 
-    <p class="small muted">The public key comes from this same site. For a stronger check, ask us for the key by email and compare it: <a href="mailto:ghostline@vorivant.com">ghostline@vorivant.com</a>.</p>
+    <p class="small muted">A key from the same website as the files is not independent authenticity evidence. Independently verify the reviewed release-key fingerprint before trusting it. Ask us for the key and compare it: <a href="mailto:ghostline@vorivant.com">ghostline@vorivant.com</a>.</p>
   </div>
 </section>
 
