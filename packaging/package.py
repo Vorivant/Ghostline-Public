@@ -113,9 +113,40 @@ def main():
     ap.add_argument("--out", required=True, type=Path)
     ap.add_argument("--date", default=datetime.datetime.fromtimestamp(EPOCH, datetime.timezone.utc).strftime("%Y-%m-%d"))
     ap.add_argument("--signing-pub", type=Path)
+    ap.add_argument("--production", action="store_true", help="require every intended platform and a verified APK")
+    ap.add_argument("--apksigner", type=Path, help="Android SDK apksigner binary, required with --production")
+    ap.add_argument("--aapt2", type=Path, help="Android SDK aapt2 binary, required with --production")
+    ap.add_argument("--android-cert-sha256", help="pinned APK signer certificate digest, required with --production")
     a = ap.parse_args()
     version = (ROOT / "VERSION").read_text().strip()
     core = json.loads((ROOT / "upstream.json").read_text())["tailscale"]["tag"].lstrip("v")
+    if a.production:
+        required = ("windows-amd64", "linux-amd64", "linux-arm64")
+        missing_targets = [t for t in required if not (a.build / t).is_dir()]
+        if missing_targets:
+            sys.exit("production: missing desktop targets: " + ", ".join(missing_targets))
+        if not a.licences or any(not (a.licences / t / "INDEX.md").is_file() for t in required):
+            sys.exit("production: missing complete per-target Go licence inventory")
+        if not a.apk or not a.apk.is_file():
+            sys.exit("production: a signed Android APK is required")
+        if not (a.apksigner and a.aapt2 and a.android_cert_sha256):
+            sys.exit("production: --apksigner, --aapt2 and --android-cert-sha256 are required")
+        expected = a.android_cert_sha256.lower().replace(":", "")
+        if not re.fullmatch(r"[a-f0-9]{64}", expected):
+            sys.exit("production: expected Android signer fingerprint must be 64 hex digits")
+        verified = subprocess.run([str(a.apksigner), "verify", "--verbose", "--print-certs", str(a.apk)],
+                                  capture_output=True, text=True)
+        if verified.returncode:
+            sys.exit("production: APK signature verification failed: " + verified.stderr[-500:])
+        match = re.search(r"Signer #1 certificate SHA-256 digest:\\s*([a-fA-F0-9:]+)", verified.stdout)
+        if not match or match.group(1).lower().replace(":", "") != expected:
+            sys.exit("production: APK certificate does not match reviewed fingerprint")
+        badging = subprocess.run([str(a.aapt2), "dump", "badging", str(a.apk)],
+                                 capture_output=True, text=True)
+        if badging.returncode or not re.search(r"^package: name='com\\.vorivant\\.ghostline'\\b", badging.stdout, re.M):
+            sys.exit("production: APK package identity is incorrect or unreadable")
+        if not (ROOT / "legal" / "ANDROID-LICENSES-VERIFIED.md").is_file():
+            sys.exit("production: Android dependency and Go core license inventory has not been accepted")
     out = a.out
     if out.exists() and any(out.iterdir()):
         sys.exit("%s is not empty" % out)
@@ -130,6 +161,8 @@ def main():
         (write_zip if target.startswith("windows") else write_tar)(dest, top, items)
         files[key] = dest
     if a.apk:
+        if not a.apk.is_file():
+            sys.exit("Android APK path does not exist")
         if a.apk.name.endswith("-unsigned.apk"):
             sys.exit("refusing to package an unsigned APK: Android cannot install it")
         dest = out / ("Ghostline-%s-android.apk" % version)
