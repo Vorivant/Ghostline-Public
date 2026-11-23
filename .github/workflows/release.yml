@@ -146,32 +146,96 @@ jobs:
           path: dist/
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          name: android
+          name: android-signed
           path: dist/android/
-      - name: Package
+      - name: Verify signed APK, complete release targets and license evidence
         env:
-          SIGNING_PUB: ${{ secrets.RELEASE_SIGNING_PUB }}
+          EXPECTED_CERT: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
         run: |
           set -euo pipefail
+          test -n "$EXPECTED_CERT" || { echo "::error::Android certificate pin is required"; exit 1; }
           chmod +x dist/build/linux-*/ghostline dist/build/linux-*/ghostlined
           export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
-          args=()
-          apk="$(ls dist/android/Ghostline-*-android.apk 2>/dev/null | head -n1 || true)"
-          [ -n "$apk" ] && args+=(--apk "$apk")
-          if [ -n "$SIGNING_PUB" ]; then printf '%s\n' "$SIGNING_PUB" > "$RUNNER_TEMP/signing.pub"; args+=(--signing-pub "$RUNNER_TEMP/signing.pub"); fi
-          python3 -I packaging/package.py --build dist/build --licences dist/licences --out dist/release "${args[@]}"
-      - name: Sign SHA256SUMS
-        env:
-          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
-        run: |
-          set -euo pipefail
-          if [ -z "$SIGNING_KEY" ]; then echo "::error::RELEASE_SIGNING_KEY is required"; exit 1; fi
-          umask 077
-          printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/signing.key"
-          packaging/sign-release.sh --key "$RUNNER_TEMP/signing.key" --dir dist/release
-          rm -f "$RUNNER_TEMP/signing.key"
+          python3 -I packaging/package.py --production --build dist/build --licences dist/licences \
+            --apk dist/android/Ghostline-android.apk \
+            --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" \
+            --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" \
+            --android-cert-sha256 "$EXPECTED_CERT" --out dist/release
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: ghostline-release-${{ github.ref_name }}
+          name: release-candidate-unsigned-manifest
           path: dist/release
+          retention-days: 3
+          if-no-files-found: error
+
+  windows-acceptance:
+    needs: package
+    runs-on: windows-latest
+    environment: release
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-candidate-unsigned-manifest
+          path: release
+      - name: Require valid Authenticode signatures from reviewed publisher
+        shell: pwsh
+        env:
+          EXPECTED_THUMBPRINT: ${{ vars.WINDOWS_SIGNING_CERT_THUMBPRINT }}
+        run: |
+          if (-not $env:EXPECTED_THUMBPRINT) { throw 'Windows publisher thumbprint required' }
+          $zips = @(Get-ChildItem release -Filter '*windows-amd64.zip')
+          if ($zips.Count -ne 1) { throw 'Expected exactly one Windows archive' }
+          Expand-Archive $zips[0].FullName -DestinationPath unpack
+          $executables = @(Get-ChildItem unpack -Filter '*.exe' -Recurse)
+          if ($executables.Count -ne 2) { throw 'Expected exactly two Windows executables' }
+          foreach ($exe in $executables) {
+            $sig = Get-AuthenticodeSignature $exe.FullName
+            if ($sig.Status -ne 'Valid' -or -not $sig.SignerCertificate) {
+              throw "Unsigned or invalid: $($exe.Name)"
+            }
+            if ($sig.SignerCertificate.Thumbprint -ne $env:EXPECTED_THUMBPRINT) {
+              throw "Publisher mismatch: $($exe.Name)"
+            }
+          }
+
+  manifest-sign:
+    needs: windows-acceptance
+    runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 15
+    steps:
+      # Dedicated runner; no checkout or project scripts executed with key present.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-candidate-unsigned-manifest
+          path: release
+      - name: Sign verified checksum manifest
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          SIGNING_PUB: ${{ vars.RELEASE_SIGNING_PUB }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY" && test -n "$SIGNING_PUB" || {
+            echo "::error::Release signing key and reviewed public key are mandatory"; exit 1;
+          }
+          umask 077
+          keydir="$(mktemp -d)"
+          trap 'rm -rf "$keydir"' EXIT
+          printf '%s\n' "$SIGNING_KEY" > "$keydir/key"
+          printf '%s\n' "$SIGNING_PUB" > "$keydir/public"
+          actual="$(ssh-keygen -y -f "$keydir/key" | awk '{print $1, $2}')"
+          expected="$(awk '{print $1, $2}' "$keydir/public")"
+          test -n "$actual" && test "$actual" = "$expected" || { echo "::error::Release key identity mismatch"; exit 1; }
+          cp "$keydir/public" release/ghostline-release-signing.pub
+          (cd release && sha256sum -c SHA256SUMS --strict)
+          ssh-keygen -Y sign -f "$keydir/key" -n file release/SHA256SUMS > /dev/null
+          printf 'release@vorivant.com %s\n' "$SIGNING_PUB" > "$keydir/allowed"
+          ssh-keygen -Y verify -f "$keydir/allowed" -I release@vorivant.com -n file \
+            -s release/SHA256SUMS.sig < release/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: production-release-candidate
+          path: release/
           retention-days: 30
+          if-no-files-found: error
