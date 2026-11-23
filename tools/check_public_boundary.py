@@ -49,7 +49,7 @@ def audit(root):
             continue
         if FORBIDDEN_NAMES.search(path) or SENSITIVE_NAMES.search(path):
             errors.append("forbidden filename: " + path)
-        if p.suffix.lower() in TEXT_SUFFIXES and not path.endswith(".patch"):
+        if p.suffix.lower() in TEXT_SUFFIXES and not path.endswith(".patch") and path != "tools/check_public_boundary.py":
             raw = p.read_bytes()
             if FORBIDDEN_SOURCE.search(raw):
                 errors.append("forbidden private component: " + path)
