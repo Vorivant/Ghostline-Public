@@ -3,9 +3,8 @@
 # The signing jobs (android, package) run in the GitHub Environment "release". Create it under Settings >
 # Environments with required reviewers and deployment branches and tags limited to main and v*, and store these
 # secrets there (not as repository secrets), so nobody can sign a build from another branch or without approval.
-# Optional environment secrets (each used only by the step that needs it):
-#   ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD   Android release key (android/README.md). Without them the
-#                                                    release has no APK.
+# Required release environment secrets (the workflow fails closed when missing):
+#   ANDROID_KEYSTORE_B64, ANDROID_KEYSTORE_PASSWORD   Android release key (android/README.md).
 #   RELEASE_SIGNING_KEY                              SSH private key that signs SHA256SUMS (packaging/sign-release.sh).
 #   RELEASE_SIGNING_PUB                              its public half, published on the download page.
 name: release
@@ -68,7 +67,7 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;23.1.7779620" > /dev/null
       - name: Build (unsigned; no secret is present while third-party build tools run)
         run: GOTOOLCHAIN=local android/build-app.sh --sdk "$ANDROID_HOME" --work "$RUNNER_TEMP/android" --out dist/android
-      - name: Sign (only when the key secrets are set)
+      - name: Sign and verify Android release APK (required)
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -76,8 +75,8 @@ jobs:
           set -euo pipefail
           unsigned="$(ls dist/android/*-android-unsigned.apk)"
           if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::warning::no Android signing key secrets: the APK is unsigned and will not be released"
-            exit 0
+            echo "::error::Android signing secrets are required for a release"
+            exit 1
           fi
           umask 077
           keydir="$(mktemp -d)"
@@ -88,7 +87,8 @@ jobs:
           signed="${unsigned%-unsigned.apk}.apk"
           "$bt/apksigner" sign --ks "$keydir/release.p12" --ks-pass "file:$keydir/release.pass" --ks-key-alias ghostline \
             --out "$signed" "$unsigned"
-          "$bt/apksigner" verify --print-certs "$signed" | grep -E 'SHA-256'
+          "$bt/apksigner" verify --verbose --print-certs "$signed" | grep -E 'SHA-256'
+          "$bt/aapt2" dump badging "$signed" | grep -F "package: name='com.vorivant.ghostline'"
           rm -f "$unsigned"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
@@ -123,7 +123,8 @@ jobs:
           export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
           args=()
           apk="$(ls dist/android/Ghostline-*-android.apk 2>/dev/null | head -n1 || true)"
-          [ -n "$apk" ] && args+=(--apk "$apk")
+          [ -n "$apk" ] || { echo "::error::Signed Android APK missing"; exit 1; }
+          args+=(--apk "$apk")
           if [ -n "$SIGNING_PUB" ]; then printf '%s\n' "$SIGNING_PUB" > "$RUNNER_TEMP/signing.pub"; args+=(--signing-pub "$RUNNER_TEMP/signing.pub"); fi
           python3 -I packaging/package.py --build dist/build --licences dist/licences --out dist/release "${args[@]}"
       - name: Sign SHA256SUMS
@@ -131,10 +132,12 @@ jobs:
           SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "$SIGNING_KEY" ]; then echo "::warning::no RELEASE_SIGNING_KEY: SHA256SUMS is not signed"; exit 0; fi
+          if [ -z "$SIGNING_KEY" ]; then echo "::error::RELEASE_SIGNING_KEY is required"; exit 1; fi
           umask 077
           printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/signing.key"
           packaging/sign-release.sh --key "$RUNNER_TEMP/signing.key" --dir dist/release
+          test -s dist/release/SHA256SUMS.sig
+          test -s dist/release/ghostline-release-signing.pub
           rm -f "$RUNNER_TEMP/signing.key"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:

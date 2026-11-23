@@ -55,6 +55,7 @@ jobs:
           python3 -I -m py_compile rebrand/rebrand.py packaging/*.py website/render_preview.py android/app_texts.py
           for f in build.sh android/build-app.sh client/linux/*.sh server/configure.sh packaging/sign-release.sh; do bash -n "$f"; done
           python3 -I website/render_preview.py
+          python3 -I -m unittest discover -s tests -p 'test_*.py'
       - name: Build linux-amd64, linux-arm64, windows-amd64
         run: GOTOOLCHAIN=local ./build.sh --target all --out dist/build --work .work
       - name: Rebrand is complete and verifiable
