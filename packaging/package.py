@@ -138,12 +138,12 @@ def main():
                                   capture_output=True, text=True)
         if verified.returncode:
             sys.exit("production: APK signature verification failed: " + verified.stderr[-500:])
-        match = re.search(r"Signer #1 certificate SHA-256 digest:\\s*([a-fA-F0-9:]+)", verified.stdout)
+        match = re.search(r"Signer #1 certificate SHA-256 digest:\s*([a-fA-F0-9:]+)", verified.stdout)
         if not match or match.group(1).lower().replace(":", "") != expected:
             sys.exit("production: APK certificate does not match reviewed fingerprint")
         badging = subprocess.run([str(a.aapt2), "dump", "badging", str(a.apk)],
                                  capture_output=True, text=True)
-        if badging.returncode or not re.search(r"^package: name='com\\.vorivant\\.ghostline'\\b", badging.stdout, re.M):
+        if badging.returncode or not re.search(r"^package: name='com\.vorivant\.ghostline'\b", badging.stdout, re.M):
             sys.exit("production: APK package identity is incorrect or unreadable")
         if not (ROOT / "legal" / "ANDROID-LICENSES-VERIFIED.md").is_file():
             sys.exit("production: Android dependency and Go core license inventory has not been accepted")
