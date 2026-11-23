@@ -55,6 +55,8 @@ jobs:
         run: python3 -I tools/test_public_boundary.py
       - name: Production packaging negative tests
         run: python3 -I tools/test_package_gate.py
+      - name: Release signing isolation tests
+        run: python3 -I tools/test_release_workflow.py
       - name: Python checks
         run: |
           set -euo pipefail
