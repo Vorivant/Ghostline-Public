@@ -8,7 +8,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 # Construct known component signatures without embedding private markers in exported source.
 SEGMENTS = ("privacy" + "-vpn", "tal" + "pid", "mull" + "vad-daemon",
-            "ghostline" + "-vpnd", "mullvad" + "_daemon::", "libtailscale/mull" + "vad",
+            "ghostline" + "-vpnd", "mull" + "vad_daemon::", "libtailscale/mull" + "vad",
             "api.mull" + "vad.net", "personal-mull" + "vad")
 NAME_PAT = re.compile(r"(?i)(?:^|[/_.-])(?:" + "|".join(re.escape(s) for s in SEGMENTS[:4]) +
                       r")(?:[/_.-]|$)")
