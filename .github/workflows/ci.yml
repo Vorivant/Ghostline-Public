@@ -51,6 +51,8 @@ jobs:
           cache: false
       - name: Enforce source and release boundary
         run: python3 -I tools/check_public_boundary.py
+      - name: Public boundary negative tests
+        run: python3 -I tools/test_public_boundary.py
       - name: Python checks
         run: |
           set -euo pipefail
