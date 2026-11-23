@@ -62,7 +62,6 @@ jobs:
   android:
     needs: release-prerequisites
     runs-on: ubuntu-latest
-    environment: release
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
@@ -80,38 +79,62 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;23.1.7779620" > /dev/null
       - name: Build (unsigned; no secret is present while third-party build tools run)
         run: GOTOOLCHAIN=local android/build-app.sh --sdk "$ANDROID_HOME" --work "$RUNNER_TEMP/android" --out dist/android
-      - name: Sign (only when the key secrets are set)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: android-unsigned
+          path: dist/android/*-unsigned.apk
+          retention-days: 3
+          if-no-files-found: error
+
+  android-sign:
+    needs: android
+    runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 20
+    steps:
+      # Signing keys are unavailable to the source checkout, Go and Gradle jobs.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: android-unsigned
+          path: unsigned
+      - name: Provision release signing utilities
+        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
+      - name: Sign and verify pinned APK
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
         run: |
           set -euo pipefail
-          unsigned="$(ls dist/android/*-android-unsigned.apk)"
-          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::error::Android signing keys are required for production"
-            exit 1
-          fi
+          test -n "$KEYSTORE_B64" && test -n "$KEYSTORE_PASSWORD" && test -n "$EXPECTED_CERT" || {
+            echo "::error::Missing Android signer configuration"; exit 1;
+          }
+          shopt -s nullglob
+          files=(unsigned/*-android-unsigned.apk)
+          test "${#files[@]}" -eq 1 || { echo "::error::Wrong number of unsigned APKs"; exit 1; }
           umask 077
           keydir="$(mktemp -d)"
           trap 'rm -rf "$keydir"' EXIT
-          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keydir/release.p12"
-          printf '%s' "$KEYSTORE_PASSWORD" > "$keydir/release.pass"
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keydir/key.p12"
+          printf '%s' "$KEYSTORE_PASSWORD" > "$keydir/pass"
+          mkdir -p signed
           bt="$ANDROID_HOME/build-tools/36.0.0"
-          signed="${unsigned%-unsigned.apk}.apk"
-          "$bt/apksigner" sign --ks "$keydir/release.p12" --ks-pass "file:$keydir/release.pass" --ks-key-alias ghostline \
-            --out "$signed" "$unsigned"
-          "$bt/apksigner" verify --print-certs "$signed" | grep -E 'SHA-256'
-          rm -f "$unsigned"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+          "$bt/apksigner" sign --ks "$keydir/key.p12" --ks-pass "file:$keydir/pass" --ks-key-alias ghostline \
+            --out signed/Ghostline-android.apk "${files[0]}"
+          "$bt/apksigner" verify --verbose --print-certs signed/Ghostline-android.apk > "$keydir/cert"
+          actual="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$keydir/cert" | head -n1 | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          expected="$(printf '%s' "$EXPECTED_CERT" | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          test -n "$actual" && test "$actual" = "$expected" || { echo "::error::Signer mismatch"; exit 1; }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: android
-          path: dist/android/
+          name: android-signed
+          path: signed/Ghostline-android.apk
+          if-no-files-found: error
           retention-days: 3
 
   package:
-    needs: [desktop, android]
+    needs: [desktop, android-sign]
     runs-on: ubuntu-latest
-    environment: release
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
