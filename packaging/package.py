@@ -143,7 +143,7 @@ def main():
             sys.exit("production: APK certificate does not match reviewed fingerprint")
         badging = subprocess.run([str(a.aapt2), "dump", "badging", str(a.apk)],
                                  capture_output=True, text=True)
-        if badging.returncode or not re.search(r"^package: name='com\.vorivant\.ghostline'\b", badging.stdout, re.M):
+        if badging.returncode or not re.search(r"^package: name='com\.vorivant\.ghostline'(?:\s|$)", badging.stdout, re.M):
             sys.exit("production: APK package identity is incorrect or unreadable")
         if not (ROOT / "legal" / "ANDROID-LICENSES-VERIFIED.md").is_file():
             sys.exit("production: Android dependency and Go core license inventory has not been accepted")
