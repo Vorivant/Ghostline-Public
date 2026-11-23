@@ -1,5 +1,5 @@
 # Build a release: desktop clients, Android app, licences, packages, signed SHA256SUMS and the download page.
-# Run by hand or by pushing a tag v*. The result is a workflow artifact; publishing it on the website is a manual step.
+# Run manually on a reviewed main commit ONLY; the result is an internal artifact, never auto-published.
 # The signing jobs (android, package) run in the GitHub Environment "release". Create it under Settings >
 # Environments with required reviewers and deployment branches and tags limited to main and v*, and store these
 # secrets there (not as repository secrets), so nobody can sign a build from another branch or without approval.
@@ -12,14 +12,26 @@ name: release
 
 on:
   workflow_dispatch:
-  push:
-    tags: ['v*']
 
 permissions:
   contents: read
 
 jobs:
+  release-prerequisites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse unapproved release prerequisites
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          test "$SOURCE_REF" = refs/heads/main || { echo "Only main may build production releases"; exit 1; }
+          echo "::error::Production pipeline requires isolated Android signing, Authenticode-signed Windows binaries, reviewed Android dependency license inventory and device acceptance before release."
+          exit 1
+
   desktop:
+    needs: release-prerequisites
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -48,9 +60,9 @@ jobs:
           retention-days: 3
 
   android:
+    needs: release-prerequisites
     runs-on: ubuntu-latest
     environment: release
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
@@ -76,8 +88,8 @@ jobs:
           set -euo pipefail
           unsigned="$(ls dist/android/*-android-unsigned.apk)"
           if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::warning::no Android signing key secrets: the APK is unsigned and will not be released"
-            exit 0
+            echo "::error::Android signing keys are required for production"
+            exit 1
           fi
           umask 077
           keydir="$(mktemp -d)"
@@ -100,7 +112,6 @@ jobs:
     needs: [desktop, android]
     runs-on: ubuntu-latest
     environment: release
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
@@ -131,7 +142,7 @@ jobs:
           SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "$SIGNING_KEY" ]; then echo "::warning::no RELEASE_SIGNING_KEY: SHA256SUMS is not signed"; exit 0; fi
+          if [ -z "$SIGNING_KEY" ]; then echo "::error::RELEASE_SIGNING_KEY is required"; exit 1; fi
           umask 077
           printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/signing.key"
           packaging/sign-release.sh --key "$RUNNER_TEMP/signing.key" --dir dist/release
