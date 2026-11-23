@@ -14,6 +14,9 @@
 	@admin path /api /api/* /swagger /swagger/*
 	respond @admin 404
 	reverse_proxy headscale:8080 {
+		# Direct internet-facing Caddy: discard untrusted source-IP claims.
+		header_up -True-Client-IP
 		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
 	}
 }

@@ -49,6 +49,14 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: false
+      - name: Enforce source and release boundary
+        run: python3 -I tools/check_public_boundary.py
+      - name: Public boundary negative tests
+        run: python3 -I tools/test_public_boundary.py
+      - name: Production packaging negative tests
+        run: python3 -I tools/test_package_gate.py
+      - name: Release signing isolation tests
+        run: python3 -I tools/test_release_workflow.py
       - name: Python checks
         run: |
           set -euo pipefail

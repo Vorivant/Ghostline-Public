@@ -15,8 +15,12 @@ Ghostline is not an internet VPN: it does not hide your address from web sites. 
 
 ## Download
 
-Releases are published on the Vorivant website with a signed `SHA256SUMS`. Windows 10/11 (x64), Linux (x86-64,
-ARM64, systemd) and Android 8.0 or newer. macOS is planned.
+**Release status (2026-11-23): source published, production downloads pending.** The current repository is
+buildable source; there is no signed, installation-accepted end-user release yet. The release process is designed
+to publish a signed `SHA256SUMS` and downloads on the Vorivant website after approval. Planned targets are Windows
+10/11 (x64), Linux (x86-64 and ARM64, systemd) and Android 8.0 or newer. Android and native installation
+acceptance remain incomplete. macOS is planned. Never install a purported official release that lacks verified
+signatures and checksums.
 
 ## Quick start
 

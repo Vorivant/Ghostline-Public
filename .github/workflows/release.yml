@@ -1,5 +1,5 @@
 # Build a release: desktop clients, Android app, licences, packages, signed SHA256SUMS and the download page.
-# Run by hand or by pushing a tag v*. The result is a workflow artifact; publishing it on the website is a manual step.
+# Run manually on a reviewed main commit ONLY; the result is an internal artifact, never auto-published.
 # The signing jobs (android, package) run in the GitHub Environment "release". Create it under Settings >
 # Environments with required reviewers and deployment branches and tags limited to main and v*, and store these
 # secrets there (not as repository secrets), so nobody can sign a build from another branch or without approval.
@@ -12,14 +12,26 @@ name: release
 
 on:
   workflow_dispatch:
-  push:
-    tags: ['v*']
 
 permissions:
   contents: read
 
 jobs:
+  release-prerequisites:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Refuse unapproved release prerequisites
+        env:
+          SOURCE_REF: ${{ github.ref }}
+        run: |
+          set -euo pipefail
+          test "$SOURCE_REF" = refs/heads/main || { echo "Only main may build production releases"; exit 1; }
+          echo "::error::Production pipeline requires isolated Android signing, Authenticode-signed Windows binaries, reviewed Android dependency license inventory and device acceptance before release."
+          exit 1
+
   desktop:
+    needs: release-prerequisites
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -48,9 +60,8 @@ jobs:
           retention-days: 3
 
   android:
+    needs: release-prerequisites
     runs-on: ubuntu-latest
-    environment: release
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 75
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
@@ -68,39 +79,64 @@ jobs:
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-36" "build-tools;36.0.0" "ndk;23.1.7779620" > /dev/null
       - name: Build (unsigned; no secret is present while third-party build tools run)
         run: GOTOOLCHAIN=local android/build-app.sh --sdk "$ANDROID_HOME" --work "$RUNNER_TEMP/android" --out dist/android
-      - name: Sign (only when the key secrets are set)
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: android-unsigned
+          path: dist/android/*-unsigned.apk
+          retention-days: 3
+          if-no-files-found: error
+
+  android-sign:
+    needs: android
+    runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 20
+    steps:
+      # Signing keys are unavailable to the source checkout, Go and Gradle jobs.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: android-unsigned
+          path: unsigned
+      - name: Provision release signing utilities
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
+      - name: Sign and verify pinned APK
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
         run: |
           set -euo pipefail
-          unsigned="$(ls dist/android/*-android-unsigned.apk)"
-          if [ -z "$KEYSTORE_B64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::warning::no Android signing key secrets: the APK is unsigned and will not be released"
-            exit 0
-          fi
+          test -n "$KEYSTORE_B64" && test -n "$KEYSTORE_PASSWORD" && test -n "$EXPECTED_CERT" || {
+            echo "::error::Missing Android signer configuration"; exit 1;
+          }
+          shopt -s nullglob
+          files=(unsigned/*-android-unsigned.apk)
+          test "${#files[@]}" -eq 1 || { echo "::error::Wrong number of unsigned APKs"; exit 1; }
           umask 077
           keydir="$(mktemp -d)"
           trap 'rm -rf "$keydir"' EXIT
-          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keydir/release.p12"
-          printf '%s' "$KEYSTORE_PASSWORD" > "$keydir/release.pass"
+          printf '%s' "$KEYSTORE_B64" | base64 -d > "$keydir/key.p12"
+          printf '%s' "$KEYSTORE_PASSWORD" > "$keydir/pass"
+          mkdir -p signed
           bt="$ANDROID_HOME/build-tools/36.0.0"
-          signed="${unsigned%-unsigned.apk}.apk"
-          "$bt/apksigner" sign --ks "$keydir/release.p12" --ks-pass "file:$keydir/release.pass" --ks-key-alias ghostline \
-            --out "$signed" "$unsigned"
-          "$bt/apksigner" verify --print-certs "$signed" | grep -E 'SHA-256'
-          rm -f "$unsigned"
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+          "$bt/apksigner" sign --ks "$keydir/key.p12" --ks-pass "file:$keydir/pass" --ks-key-alias ghostline \
+            --out signed/Ghostline-android.apk "${files[0]}"
+          "$bt/apksigner" verify --verbose --print-certs signed/Ghostline-android.apk > "$keydir/cert"
+          actual="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' "$keydir/cert" | head -n1 | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          expected="$(printf '%s' "$EXPECTED_CERT" | tr -d ':' | tr '[:upper:]' '[:lower:]')"
+          test -n "$actual" && test "$actual" = "$expected" || { echo "::error::Signer mismatch"; exit 1; }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: android
-          path: dist/android/
+          name: android-signed
+          path: signed/Ghostline-android.apk
+          if-no-files-found: error
           retention-days: 3
 
   package:
-    needs: [desktop, android]
+    needs: [desktop, android-sign]
     runs-on: ubuntu-latest
-    environment: release
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
@@ -112,32 +148,100 @@ jobs:
           path: dist/
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
-          name: android
+          name: android-signed
           path: dist/android/
-      - name: Package
-        env:
-          SIGNING_PUB: ${{ secrets.RELEASE_SIGNING_PUB }}
+      - name: Provision APK verification tools
         run: |
           set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
+      - name: Verify signed APK, complete release targets and license evidence
+        env:
+          EXPECTED_CERT: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
+        run: |
+          set -euo pipefail
+          test -n "$EXPECTED_CERT" || { echo "::error::Android certificate pin is required"; exit 1; }
           chmod +x dist/build/linux-*/ghostline dist/build/linux-*/ghostlined
           export SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)"
-          args=()
-          apk="$(ls dist/android/Ghostline-*-android.apk 2>/dev/null | head -n1 || true)"
-          [ -n "$apk" ] && args+=(--apk "$apk")
-          if [ -n "$SIGNING_PUB" ]; then printf '%s\n' "$SIGNING_PUB" > "$RUNNER_TEMP/signing.pub"; args+=(--signing-pub "$RUNNER_TEMP/signing.pub"); fi
-          python3 -I packaging/package.py --build dist/build --licences dist/licences --out dist/release "${args[@]}"
-      - name: Sign SHA256SUMS
-        env:
-          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
-        run: |
-          set -euo pipefail
-          if [ -z "$SIGNING_KEY" ]; then echo "::warning::no RELEASE_SIGNING_KEY: SHA256SUMS is not signed"; exit 0; fi
-          umask 077
-          printf '%s\n' "$SIGNING_KEY" > "$RUNNER_TEMP/signing.key"
-          packaging/sign-release.sh --key "$RUNNER_TEMP/signing.key" --dir dist/release
-          rm -f "$RUNNER_TEMP/signing.key"
+          python3 -I packaging/package.py --production --build dist/build --licences dist/licences \
+            --apk dist/android/Ghostline-android.apk \
+            --apksigner "$ANDROID_HOME/build-tools/36.0.0/apksigner" \
+            --aapt2 "$ANDROID_HOME/build-tools/36.0.0/aapt2" \
+            --android-cert-sha256 "$EXPECTED_CERT" --out dist/release
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
-          name: ghostline-release-${{ github.ref_name }}
+          name: release-candidate-unsigned-manifest
           path: dist/release
+          retention-days: 3
+          if-no-files-found: error
+
+  windows-acceptance:
+    needs: package
+    runs-on: windows-latest
+    environment: release
+    timeout-minutes: 15
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-candidate-unsigned-manifest
+          path: release
+      - name: Require valid Authenticode signatures from reviewed publisher
+        shell: pwsh
+        env:
+          EXPECTED_THUMBPRINT: ${{ vars.WINDOWS_SIGNING_CERT_THUMBPRINT }}
+        run: |
+          if (-not $env:EXPECTED_THUMBPRINT) { throw 'Windows publisher thumbprint required' }
+          $zips = @(Get-ChildItem release -Filter '*windows-amd64.zip')
+          if ($zips.Count -ne 1) { throw 'Expected exactly one Windows archive' }
+          Expand-Archive $zips[0].FullName -DestinationPath unpack
+          $executables = @(Get-ChildItem unpack -Filter '*.exe' -Recurse)
+          if ($executables.Count -ne 2) { throw 'Expected exactly two Windows executables' }
+          foreach ($exe in $executables) {
+            $sig = Get-AuthenticodeSignature $exe.FullName
+            if ($sig.Status -ne 'Valid' -or -not $sig.SignerCertificate) {
+              throw "Unsigned or invalid: $($exe.Name)"
+            }
+            if ($sig.SignerCertificate.Thumbprint -ne $env:EXPECTED_THUMBPRINT) {
+              throw "Publisher mismatch: $($exe.Name)"
+            }
+          }
+
+  manifest-sign:
+    needs: windows-acceptance
+    runs-on: ubuntu-latest
+    environment: release
+    timeout-minutes: 15
+    steps:
+      # Dedicated runner; no checkout or project scripts executed with key present.
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: release-candidate-unsigned-manifest
+          path: release
+      - name: Sign verified checksum manifest
+        env:
+          SIGNING_KEY: ${{ secrets.RELEASE_SIGNING_KEY }}
+          SIGNING_PUB: ${{ vars.RELEASE_SIGNING_PUB }}
+        run: |
+          set -euo pipefail
+          test -n "$SIGNING_KEY" && test -n "$SIGNING_PUB" || {
+            echo "::error::Release signing key and reviewed public key are mandatory"; exit 1;
+          }
+          umask 077
+          keydir="$(mktemp -d)"
+          trap 'rm -rf "$keydir"' EXIT
+          printf '%s\n' "$SIGNING_KEY" > "$keydir/key"
+          printf '%s\n' "$SIGNING_PUB" > "$keydir/public"
+          actual="$(ssh-keygen -y -f "$keydir/key" | awk '{print $1, $2}')"
+          expected="$(awk '{print $1, $2}' "$keydir/public")"
+          test -n "$actual" && test "$actual" = "$expected" || { echo "::error::Release key identity mismatch"; exit 1; }
+          cp "$keydir/public" release/ghostline-release-signing.pub
+          (cd release && sha256sum -c SHA256SUMS --strict)
+          ssh-keygen -Y sign -f "$keydir/key" -n file release/SHA256SUMS > /dev/null
+          printf 'release@vorivant.com %s\n' "$SIGNING_PUB" > "$keydir/allowed"
+          ssh-keygen -Y verify -f "$keydir/allowed" -I release@vorivant.com -n file \
+            -s release/SHA256SUMS.sig < release/SHA256SUMS
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: production-release-candidate
+          path: release/
           retention-days: 30
+          if-no-files-found: error
