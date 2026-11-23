@@ -1,71 +1,55 @@
 #!/usr/bin/env python3
-"""Public-only invariants. This deliberately contains no private deployment identifiers.
-Check the public repository before packaging or publishing; reject private components,
-unsafe defaults, accidental credentials and non-isolated release triggers.
-"""
+"""Public-only source invariants. No private deployment values are stored here."""
 import json
 from pathlib import Path
 import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-FORBIDDEN_NAMES = re.compile(
-    r"(?i)(?:^|[/_.-])(?:privacy-vpn|talpid|mullvad-daemon|ghostline-vpnd)(?:[/_.-]|$)"
-)
-FORBIDDEN_SOURCE = re.compile(
-    r"(?i)api\.mullvad\.net|mullvad_daemon::|libtailscale/mullvad|"
-    r"ghostline-vpnd|personal-mullvad|privacy-vpn"
-)
-SENSITIVE_NAMES = re.compile(
-    r"(?i)(?:^|/)(?:\.env|ghostline\.config\.json|id_rsa|id_ed25519|"
-    r".*\.(?:p12|pfx|pem|jks|keystore))$"
-)
-TEXT_SUFFIXES = {".py", ".sh", ".ps1", ".go", ".json", ".yaml", ".yml", ".md", ".txt"}
-EXCLUDED = {".git", "dist", ".work", "__pycache__"}
-EXACTLY_ALLOWED_CONTROL = "https://enter-your-server.invalid"
+# Construct known component signatures without embedding private markers in exported source.
+SEGMENTS = ("privacy" + "-vpn", "tal" + "pid", "mull" + "vad-daemon",
+            "ghostline" + "-vpnd", "mullvad" + "_daemon::", "libtailscale/mull" + "vad",
+            "api.mull" + "vad.net", "personal-mull" + "vad")
+NAME_PAT = re.compile(r"(?i)(?:^|[/_.-])(?:" + "|".join(re.escape(s) for s in SEGMENTS[:4]) +
+                      r")(?:[/_.-]|$)")
+BYTE_PAT = re.compile("|".join(re.escape(s) for s in SEGMENTS).encode(), re.I)
+CRED_PAT = re.compile(r"(?i)(?:^|/)(?:\.env|ghostline\.config\.json|id_rsa|id_ed25519|"
+                      r".*\.(?:p12|pfx|pem|jks|keystore))$")
+TEXT = {".py", ".sh", ".ps1", ".go", ".json", ".yaml", ".yml", ".md", ".txt"}
+SKIP = {".git", "dist", ".work", "__pycache__"}
 
 
 def audit(root):
     errors = []
     brand = json.loads((root / "brand.json").read_text(encoding="utf-8"))
-    if brand.get("DefaultControlURL") != EXACTLY_ALLOWED_CONTROL:
-        errors.append("brand: control URL is not the public reserved placeholder")
+    if brand.get("DefaultControlURL") != "https://enter-your-server.invalid":
+        errors.append("unexpected default coordination URL")
     if brand.get("DerpHostnames") != [] or brand.get("LogHost") or brand.get("UpdateBaseURL"):
-        errors.append("brand: public relay, log or update hosts configured")
+        errors.append("public relay, log or update hosts configured")
     release = (root / ".github/workflows/release.yml").read_text(encoding="utf-8")
     if re.search(r"(?m)^\s+tags:\s*\[.v\*.\]", release):
-        errors.append("release: an automatic tag trigger is enabled")
+        errors.append("automatic release tag trigger enabled")
     if "release-prerequisites:" not in release:
-        errors.append("release: an explicit acceptance preflight is missing")
+        errors.append("explicit release-readiness gate missing")
     for p in sorted(root.rglob("*")):
         rel = p.relative_to(root)
-        if any(part in EXCLUDED for part in rel.parts):
+        if any(part in SKIP for part in rel.parts):
             continue
         path = rel.as_posix()
         if p.is_symlink():
             errors.append("symlink: " + path)
-            continue
-        if not p.is_file():
-            continue
-        if FORBIDDEN_NAMES.search(path) or SENSITIVE_NAMES.search(path):
-            errors.append("forbidden filename: " + path)
-        if p.suffix.lower() in TEXT_SUFFIXES and not path.endswith(".patch") and path != "tools/check_public_boundary.py":
-            raw = p.read_bytes()
-            if FORBIDDEN_SOURCE.search(raw):
-                errors.append("forbidden private component: " + path)
+        elif p.is_file():
+            if NAME_PAT.search(path) or CRED_PAT.search(path):
+                errors.append("forbidden file name: " + path)
+            if p.suffix.lower() in TEXT and path != "tools/check_public_boundary.py" and not path.endswith(".patch"):
+                if BYTE_PAT.search(p.read_bytes()):
+                    errors.append("forbidden component reference: " + path)
     return errors
 
 
-def main():
-    problems = audit(ROOT)
-    for issue in problems:
-        print("PUBLIC BOUNDARY:", issue, file=sys.stderr)
-    if problems:
-        print(f"Public boundary: FAIL ({len(problems)} findings)", file=sys.stderr)
-        return 1
-    print("Public boundary: PASS (generic source and release invariants)")
-    return 0
-
-
 if __name__ == "__main__":
-    sys.exit(main())
+    findings = audit(ROOT)
+    for finding in findings:
+        print("PUBLIC BOUNDARY:", finding, file=sys.stderr)
+    print("Public boundary:", "FAIL" if findings else "PASS")
+    sys.exit(bool(findings))
