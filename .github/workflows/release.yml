@@ -98,7 +98,9 @@ jobs:
           name: android-unsigned
           path: unsigned
       - name: Provision release signing utilities
-        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
       - name: Sign and verify pinned APK
         env:
           KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
@@ -148,6 +150,10 @@ jobs:
         with:
           name: android-signed
           path: dist/android/
+      - name: Provision APK verification tools
+        run: |
+          set -euo pipefail
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;36.0.0"
       - name: Verify signed APK, complete release targets and license evidence
         env:
           EXPECTED_CERT: ${{ vars.ANDROID_SIGNING_CERT_SHA256 }}
